@@ -1,9 +1,11 @@
 package com.vsu.amm.data.storage;
 
-import com.vsu.amm.data.IDataSet;
+import com.vsu.amm.data.IDataContainer;
 import com.vsu.amm.stat.ICounterSet;
 
 import java.util.Map;
+
+import org.jdom.Element;
 
 /**
  * Created with IntelliJ IDEA.
@@ -12,10 +14,10 @@ import java.util.Map;
  * Time: 20:25
  * To change this template use File | Settings | File Templates.
  */
-public interface IDataStorage extends IDataSet {
+public interface IDataStorage extends IDataContainer {
     public void setCounterSet(ICounterSet counterSet);
     public ICounterSet getCounterSet();
-    public void setStorageParams(Map<String, String> params);
+    public void setStorageParams(Element elem);
     public Map<String, String> getStorageParams();
     public void clear();
 }

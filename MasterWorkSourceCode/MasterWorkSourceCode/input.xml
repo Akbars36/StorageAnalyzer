@@ -2,7 +2,7 @@
 <burden>
   <data>
     <sequence count="1">
-        <insert alias="Ins1" count="5" min="%min%" max="%max%" />
+        <insert alias="Ins1" count="100" min="%min%" max="%max%" />
         <select count="3" from="Ins1"/>
     </sequence>
   </data>

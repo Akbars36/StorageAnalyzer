@@ -22,7 +22,7 @@ public class Main {
     public static void main(String[] args) {
         ProcessGenerateXML processGenerateXML = new ProcessGenerateXML();
         String fileName = "input.xml";
-        processGenerateXML.GenerateXML(fileName);
+       // processGenerateXML.GenerateXML(fileName);
         ProcessLoadXML processLoadXML = new ProcessLoadXML();
 
         LogFileWriter logFileWriter = new LogFileWriter(Constants.DEFAULT_OUTPUT_FILE_NAME);

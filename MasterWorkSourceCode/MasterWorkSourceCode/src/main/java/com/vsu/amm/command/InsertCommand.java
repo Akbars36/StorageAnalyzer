@@ -5,7 +5,7 @@ import com.beust.jcommander.Parameter;
 /**
  * Created by VLAD on 13.05.14.
  */
-public class InsertCommand {
+public class InsertCommand implements ICommand{
     @Parameter(names = {"count"})
     private Integer count = 1;
 

@@ -20,7 +20,7 @@ public class LogFilePlayer {
 
     private static final Logger log = Logger.getLogger(LogFilePlayer.class);
 
-    public void playFile(String filename, IDataSet storage)
+    public void playFile(String filename, IDataContainer storage)
     {
         String line, command, value;
         int command_si, command_ei;

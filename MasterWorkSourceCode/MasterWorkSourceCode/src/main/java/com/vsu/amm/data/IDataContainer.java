@@ -7,7 +7,7 @@ package com.vsu.amm.data;
  * Time: 20:14
  * To change this template use File | Settings | File Templates.
  */
-public interface IDataSet {
+public interface IDataContainer {
     public void get(int value);
 
     public void set(int value);

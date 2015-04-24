@@ -1,14 +1,45 @@
 package com.vsu.amm.command.xmlgen;
 
-import org.jdom.Element;
-
 import com.vsu.amm.command.ICommandSource;
+import org.jdom2.Element;
 
+import java.util.Map;
+
+/**
+ * фабрика
+ */
 public class SourceGenerator {
 
-	static ICommandSource create(Element elem)
-	{
-		return null;
-	}
-	//...
+    static ICommandSource create(Element elem, Map<String, Integer> params) {
+        if (elem == null)
+            return null;
+
+        AliasSet aliases = new AliasSet();
+
+        ICommandSource commandSource;
+
+        switch (elem.getName().toLowerCase()) {
+            case "insert":
+                commandSource = new InsertCommandSource(elem, aliases, params);
+                break;
+            case "select":
+                commandSource = new SelectCommandSource(elem, aliases, params);
+                break;
+            case "remove":
+                commandSource = new RemoveCommandSource(elem, aliases, params);
+                break;
+            case "block":
+                commandSource = new BlockCommandSource(elem, aliases, params);
+                break;
+            case "sequence":
+                commandSource = new SequenceCommandSource(elem, params);
+                break;
+            default:
+                commandSource = null;
+        }
+
+        return commandSource;
+    }
+
+
 }

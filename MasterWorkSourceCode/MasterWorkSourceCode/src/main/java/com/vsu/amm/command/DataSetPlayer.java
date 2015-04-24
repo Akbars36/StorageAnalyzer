@@ -5,27 +5,37 @@ import com.vsu.amm.stat.ICounterSet;
 
 public class DataSetPlayer implements ICommandPlayer {
 
-	protected IDataContainer dataSet;
-	protected ICounterSet counterSet;
-	
-	public DataSetPlayer(IDataContainer dataSet) {
-		super();
-		this.dataSet = dataSet;
-		this.counterSet = null;
-	}
-	
-	
-	public DataSetPlayer(IDataContainer dataSet, ICounterSet counterSet) {
-		super();
-		this.dataSet = dataSet;
-		this.counterSet = counterSet;
-	}
+    protected IDataContainer dataSet;
+    protected ICounterSet counterSet;
+
+    public DataSetPlayer(IDataContainer dataSet) {
+        super();
+        this.dataSet = dataSet;
+        this.counterSet = null;
+    }
 
 
-	@Override
-	public void play(ICommandSource commandSource) {
-		// TODO Auto-generated method stub
-		
-	}
+    public DataSetPlayer(IDataContainer dataSet, ICounterSet counterSet) {
+        super();
+        this.dataSet = dataSet;
+        this.counterSet = counterSet;
+    }
+
+
+    @Override
+    public void play(ICommandSource commandSource) {
+        if (commandSource == null)
+            return;
+
+        if (dataSet == null)
+            return;
+
+        ICommand cmd = commandSource.next();
+        while (cmd != null) {
+            cmd.execute(dataSet);
+            cmd = commandSource.next();
+        }
+
+    }
 
 }

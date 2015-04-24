@@ -1,5 +1,12 @@
 package com.vsu.amm.command;
 
+import com.vsu.amm.data.stream.IDataStream;
+
 public interface ICommandSource {
-	public ICommand next();
+
+    void restart();
+
+    ICommand next();
+
+    void printToStream(IDataStream stream);
 }

@@ -8,15 +8,15 @@ package com.vsu.amm.stat;
  * To change this template use File | Settings | File Templates.
  */
 public interface ICounterSet {
-	enum OperationType
-	{
-		operationCompare,
-		operationAssign
-	};
-	
-	public void startLabel(String name);
-	
-    public void inc(OperationType operation);
 
-    public void inc(OperationType operation, int delta);
+    void inc(OperationType operation);
+
+    void inc(OperationType operation, int delta);
+
+    int get(OperationType operation);
+
+    enum OperationType {
+        COMPARE,
+        ASSIGN
+    }
 }

@@ -5,12 +5,28 @@ package com.vsu.amm.data;
  * User: Влад
  * Date: 13.11.13
  * Time: 20:14
- * To change this template use File | Settings | File Templates.
+ * Базовый интерфейс для контейнеров данных
  */
 public interface IDataContainer {
-    public void get(int value);
 
-    public void set(int value);
+    /**
+     * Ищет заданное значение в хранилище
+     *
+     * @param value
+     */
+    void get(int value);
 
-    public void remove(int value);
+    /**
+     * Добавляет выбранное значение в хранилище
+     *
+     * @param value
+     */
+    void set(int value);
+
+    /**
+     * удаляет выбранное значение из хранилища
+     *
+     * @param value
+     */
+    void remove(int value);
 }

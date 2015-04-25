@@ -20,22 +20,21 @@ public class LogFilePlayer {
 
     private static final Logger log = Logger.getLogger(LogFilePlayer.class);
 
-    public void playFile(String filename, IDataContainer storage)
-    {
+    public void playFile(String filename, IDataContainer storage) {
         String line, command, value;
         int command_si, command_ei;
         int value_si, value_ei;
         try {
             BufferedReader br = new BufferedReader(new FileReader(filename));
-            while( (line = br.readLine()) != null){
-                if (line.startsWith("<")){
+            while ((line = br.readLine()) != null) {
+                if (line.startsWith("<")) {
                     command_si = line.indexOf("<") + 1;
                     command_ei = line.indexOf(">");
                     command = line.substring(command_si, command_ei);
                     value_si = line.lastIndexOf("<") + 1;
                     value_ei = line.lastIndexOf(">");
                     value = line.substring(value_si, value_ei);
-                    switch (command){
+                    switch (command) {
                         case Constants.INSERT_COMMAND_NAME:
                             storage.set(Integer.parseInt(value));
                             break;

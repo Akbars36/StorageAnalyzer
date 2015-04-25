@@ -522,7 +522,7 @@ public class ProcessLoadXML {
                 for (Pair<String, String> pair : result) {
                     switch (pair.getKey()) {
                         case Constants.INSERT_COMMAND_NAME:
-                            dataStream.add(Integer.parseInt(pair.getValue()));
+                            dataStream.set(Integer.parseInt(pair.getValue()));
                             break;
                         case Constants.SELECT_COMMAND_NAME:
                             dataStream.get(Integer.parseInt(pair.getValue()));

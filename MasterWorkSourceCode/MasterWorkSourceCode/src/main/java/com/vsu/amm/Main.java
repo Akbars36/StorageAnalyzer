@@ -1,12 +1,7 @@
 package com.vsu.amm;
 
-import com.vsu.amm.data.LogFilePlayer;
-import com.vsu.amm.data.stream.LogFileWriter;
-import com.vsu.amm.data.storage.IDataStorage;
-import com.vsu.amm.data.storage.SimpleArray;
-import com.vsu.amm.load.ProcessLoadXML;
-import com.vsu.amm.stat.ICounterSet;
-import com.vsu.amm.stat.SimpleCounterSet;
+import com.vsu.amm.command.DataSetPlayer;
+import com.vsu.amm.load.XMLLoader;
 import org.apache.log4j.Logger;
 
 /**
@@ -20,13 +15,16 @@ public class Main {
     private static final Logger log = Logger.getLogger(Main.class);
 
     public static void main(String[] args) {
-        ProcessGenerateXML processGenerateXML = new ProcessGenerateXML();
+        //ProcessGenerateXML processGenerateXML = new ProcessGenerateXML();
         String fileName = "input.xml";
-       // processGenerateXML.GenerateXML(fileName);
-        ProcessLoadXML processLoadXML = new ProcessLoadXML();
-
-        LogFileWriter logFileWriter = new LogFileWriter(Constants.DEFAULT_OUTPUT_FILE_NAME);
-        processLoadXML.processXMLNew(fileName, logFileWriter);
-        logFileWriter.close();
+        // processGenerateXML.GenerateXML(fileName);
+        //ProcessLoadXML processLoadXML = new ProcessLoadXML();
+        XMLLoader loader = new XMLLoader();
+        loader.ParseXML(fileName);
+        DataSetPlayer dsp = new DataSetPlayer(loader.storages.get(0));
+        dsp.play(loader.commands.get(0));
+        //LogFileWriter logFileWriter = new LogFileWriter(Constants.DEFAULT_OUTPUT_FILE_NAME);
+        //processLoadXML.processXMLNew(fileName, logFileWriter);
+        //logFileWriter.close();
     }
 }

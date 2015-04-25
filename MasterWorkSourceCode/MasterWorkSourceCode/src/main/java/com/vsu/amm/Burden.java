@@ -12,26 +12,6 @@ import java.util.List;
 public class Burden {
 
 
-    public static enum TagNames{
-        SEQUENCE("sequence"),
-        BLOCK("block"),
-        INSERT("insert"),
-        SELECT("select"),
-        REMOVE("remove")
-        ;
-
-        private TagNames(final String name){
-            this.name = name;
-        }
-        private final String name;
-
-        @Override
-        public String toString() {
-            return name;
-        }
-
-    }
-
     private int id;
     private int parentId;
     private String name;
@@ -42,10 +22,8 @@ public class Burden {
     private String min;
     private String max;
     private String tempCount;
-
     private List<Integer> childrenId;
     private List<Integer> genKeyValueToAlias;
-
     public Burden(int id, int parentId, String name, String count, String label, String alias, String from, String min, String max) {
         this.id = id;
         this.parentId = parentId;
@@ -155,5 +133,25 @@ public class Burden {
 
     public void setTempCount(String tempCount) {
         this.tempCount = tempCount;
+    }
+
+    public enum TagNames {
+        SEQUENCE("sequence"),
+        BLOCK("block"),
+        INSERT("insert"),
+        SELECT("select"),
+        REMOVE("remove");
+
+        private final String name;
+
+        TagNames(final String name) {
+            this.name = name;
+        }
+
+        @Override
+        public String toString() {
+            return name;
+        }
+
     }
 }

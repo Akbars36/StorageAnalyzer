@@ -21,18 +21,17 @@ public class LogFileWriter implements IDataStream {
     private PrintWriter out = null;
 
 
-    public LogFileWriter(String filename)
-    {
+    public LogFileWriter(String filename) {
         try {
             out = new PrintWriter(filename);
         } catch (FileNotFoundException e) {
-            log.error(new MasterWorkException(e.getMessage(),e));
+            log.error(new MasterWorkException(e.getMessage(), e));
         }
 
     }
 
-    public void close(){
-        if (out != null){
+    public void close() {
+        if (out != null) {
             out.flush();
             out.close();
         }
@@ -41,31 +40,31 @@ public class LogFileWriter implements IDataStream {
     @Override
     public void get(int value) {
         //To change body of implemented methods use File | Settings | File Templates.
-        if (out != null){
-            out.println("<" + Constants.SELECT_COMMAND_NAME + "> <"+ value +">");
+        if (out != null) {
+            out.println("<" + Constants.SELECT_COMMAND_NAME + "> <" + value + ">");
         }
     }
 
     @Override
     public void set(int value) {
         //To change body of implemented methods use File | Settings | File Templates.
-        if (out != null){
-            out.println("<" + Constants.INSERT_COMMAND_NAME + "> <"+ value +">");
+        if (out != null) {
+            out.println("<" + Constants.INSERT_COMMAND_NAME + "> <" + value + ">");
         }
     }
 
     @Override
     public void remove(int value) {
         //To change body of implemented methods use File | Settings | File Templates.
-        if (out != null){
-            out.println("<" + Constants.REMOVE_COMMAND_NAME + "> <"+ value +">");
+        if (out != null) {
+            out.println("<" + Constants.REMOVE_COMMAND_NAME + "> <" + value + ">");
         }
     }
 
     @Override
     public void label(String label) {
         //To change body of implemented methods use File | Settings | File Templates.
-        if (out != null){
+        if (out != null) {
             out.println(label);
         }
     }

@@ -10,7 +10,7 @@ import java.util.Map;
  */
 public class SourceGenerator {
 
-    static ICommandSource create(Element elem, Map<String, Integer> params) {
+    public static ICommandSource create(Element elem, Map<String, Integer> params) {
         if (elem == null)
             return null;
 

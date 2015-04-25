@@ -80,7 +80,7 @@ public class SimpleList implements IDataStorage {
         Node tmp = root;
         boolean found = false;
         while ((tmp != null) && !found ){
-            counterSet.inc(ICounterSet.COMPARE);
+            counterSet.inc(ICounterSet.OperationType.COMPARE);
             if (tmp.value == value){
                 found = true;
             }
@@ -91,12 +91,12 @@ public class SimpleList implements IDataStorage {
     @Override
     public void set(int value) {
         if (root != null){
-            counterSet.inc(ICounterSet.ASSIGN);
+            counterSet.inc(ICounterSet.OperationType.ASSIGN);
             Node node = new Node(value);
             node.next = root;
             root = node;
         } else {
-            counterSet.inc(ICounterSet.ASSIGN);
+            counterSet.inc(ICounterSet.OperationType.ASSIGN);
             root = new Node(value);
         }
     }
@@ -106,7 +106,7 @@ public class SimpleList implements IDataStorage {
         Node curr = root;
         Node prev = null;
         while (curr != null){
-            counterSet.inc(ICounterSet.COMPARE);
+            counterSet.inc(ICounterSet.OperationType.COMPARE);
             if (curr.value == value){
                 if (curr == root){
                     root = root.next;

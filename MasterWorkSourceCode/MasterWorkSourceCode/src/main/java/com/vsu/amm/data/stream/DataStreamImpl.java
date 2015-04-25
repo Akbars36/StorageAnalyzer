@@ -89,9 +89,9 @@ public class DataStreamImpl implements IDataStream {
             }
             builder.append("Storage").append(",");
             builder.append("Storage Params").append(",");
-            builder.append(ICounterSet.COMPARE)
+            builder.append(ICounterSet.OperationType.COMPARE)
                     .append(",")
-                    .append(ICounterSet.ASSIGN)
+                    .append(ICounterSet.OperationType.ASSIGN)
                     .append("\r\n");
             first = false;
         }
@@ -102,10 +102,10 @@ public class DataStreamImpl implements IDataStream {
             if (bestDataStorage == null){
                 bestDataStorage = dataStorage;
             } else {
-                countersBest = bestDataStorage.getCounterSet().get(ICounterSet.COMPARE)
-                        + bestDataStorage.getCounterSet().get(ICounterSet.ASSIGN);
-                countersCurr = dataStorage.getCounterSet().get(ICounterSet.COMPARE)
-                        + dataStorage.getCounterSet().get(ICounterSet.ASSIGN);
+                countersBest = bestDataStorage.getCounterSet().get(ICounterSet.OperationType.COMPARE)
+                        + bestDataStorage.getCounterSet().get(ICounterSet.OperationType.ASSIGN);
+                countersCurr = dataStorage.getCounterSet().get(ICounterSet.OperationType.COMPARE)
+                        + dataStorage.getCounterSet().get(ICounterSet.OperationType.ASSIGN);
                 if (countersCurr < countersBest){
                     bestDataStorage = dataStorage;
                 }
@@ -122,8 +122,8 @@ public class DataStreamImpl implements IDataStream {
             }
         }
         builder.append(",");
-        builder.append(bestDataStorage.getCounterSet().get(ICounterSet.COMPARE)).append(",")
-                .append(bestDataStorage.getCounterSet().get(ICounterSet.ASSIGN))
+        builder.append(bestDataStorage.getCounterSet().get(ICounterSet.OperationType.COMPARE)).append(",")
+                .append(bestDataStorage.getCounterSet().get(ICounterSet.OperationType.ASSIGN))
                 .append("\r\n");
 
         out.println(builder.toString());

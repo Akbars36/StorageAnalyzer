@@ -369,10 +369,7 @@ public class ProcessLoadXML {
         Document document;
         Element element, rootNode, storagesNode, dataNode, paramsNode;
 
-        String storageClass = null;
-        Map<String, String> storageParams;
-        String storageParamName;
-        String storageParamValue;
+
         Map<String, String> paramMap;
 
         String param_name = null;
@@ -402,14 +399,7 @@ public class ProcessLoadXML {
             //Get storages
             storagesNode = rootNode.getChild(Constants.STORAGES_TAG_NAME);
             for (Element storageNode : storagesNode.getChildren()) {
-                storageClass = storageNode.getAttributeValue("class");
-                storageParams = new HashMap<>();
-                for (Element storageParam : storageNode.getChildren()) {
-                    storageParamName = storageParam.getAttributeValue("name");
-                    storageParamValue = storageParam.getAttributeValue("value");
-                    storageParams.put(storageParamName, storageParamValue);
-                }
-                Storage storage = new Storage(storageClass, storageParams);
+                Storage storage = new Storage(storageNode);
                 dataStorages.add(storage.getStorage());
             }
             /*storageNode = rootNode.getChild(Constants.STORAGE_TAG_NAME);

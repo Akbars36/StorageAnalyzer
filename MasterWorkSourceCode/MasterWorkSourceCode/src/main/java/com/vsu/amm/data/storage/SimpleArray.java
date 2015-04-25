@@ -59,14 +59,14 @@ public class SimpleArray implements IDataStorage {
     public void get(int value) {
         Iterator<Integer> iterator = array.iterator();
         while((iterator.hasNext()) && (iterator.next() != value)){
-            counterSet.inc(ICounterSet.COMPARE);
+            counterSet.inc(ICounterSet.OperationType.COMPARE);
         }
-        counterSet.inc(ICounterSet.COMPARE);
+        counterSet.inc(ICounterSet.OperationType.COMPARE);
     }
 
     @Override
     public void set(int value) {
-        counterSet.inc(ICounterSet.ASSIGN);
+        counterSet.inc(ICounterSet.OperationType.ASSIGN);
         array.add(value);
     }
 
@@ -78,11 +78,11 @@ public class SimpleArray implements IDataStorage {
         while(!end){
             for(index = first; index < array.size(); index++){
                 if (array.get(index) == value){
-                    counterSet.inc(ICounterSet.COMPARE);
-                    counterSet.inc(ICounterSet.ASSIGN, array.size() - index);
+                    counterSet.inc(ICounterSet.OperationType.COMPARE);
+                    counterSet.inc(ICounterSet.OperationType.ASSIGN, array.size() - index);
                     break;
                 } else {
-                    counterSet.inc(ICounterSet.COMPARE);
+                    counterSet.inc(ICounterSet.OperationType.COMPARE);
                 }
             }
             if (index != array.size()){

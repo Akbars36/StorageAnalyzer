@@ -18,7 +18,7 @@ public class InsertCommand implements ICommand {
     public void execute(IDataContainer dataSet) {
         if (dataSet == null)
             return;
-        dataSet.add(value);
+        dataSet.set(value);
     }
 
     @Override
@@ -26,7 +26,7 @@ public class InsertCommand implements ICommand {
         if (stream == null) {
             return;
         }
-        stream.add(value);
+        stream.set(value);
     }
 
     public int getValue() {

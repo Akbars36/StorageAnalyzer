@@ -5,8 +5,6 @@ import com.vsu.amm.stat.ICounterSet;
 
 import java.util.Map;
 
-import org.jdom.Element;
-
 /**
  * Created with IntelliJ IDEA.
  * User: Влад
@@ -17,7 +15,7 @@ import org.jdom.Element;
 public interface IDataStorage extends IDataContainer {
     public void setCounterSet(ICounterSet counterSet);
     public ICounterSet getCounterSet();
-    public void setStorageParams(Element elem);
+    public void setStorageParams(Map<String, String> params);
     public Map<String, String> getStorageParams();
     public void clear();
 }

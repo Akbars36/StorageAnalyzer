@@ -115,7 +115,7 @@ public class BTree implements IDataStorage  {
         // external node
         if (ht == 0) {
             for (int j = 0; j < x.m; j++) {
-                counterSet.inc(ICounterSet.COMPARE);
+                counterSet.inc(ICounterSet.OperationType.COMPARE);
                 if (value == children[j].value){
                     return;
                 }
@@ -126,7 +126,7 @@ public class BTree implements IDataStorage  {
             for (int j = 0; j < x.m; j++) {
                 if (j+1 == x.m || value < children[j+1].value){
                     if (j+1 != x.m){
-                        counterSet.inc(ICounterSet.COMPARE);
+                        counterSet.inc(ICounterSet.OperationType.COMPARE);
                     }
                     search(children[j].next, value, ht-1);
                 }
@@ -162,7 +162,7 @@ public class BTree implements IDataStorage  {
         // external node
         if (ht == 0) {
             for (j = 0; j < h.m; j++) {
-                counterSet.inc(ICounterSet.COMPARE);
+                counterSet.inc(ICounterSet.OperationType.COMPARE);
                 if (value < h.children[j].value)
                     break;
             }
@@ -172,13 +172,13 @@ public class BTree implements IDataStorage  {
             for (j = 0; j < h.m; j++) {
                 if ((j+1 == h.m) || value < h.children[j+1].value) {
                     if (j+1 != h.m) {
-                        counterSet.inc(ICounterSet.COMPARE);
+                        counterSet.inc(ICounterSet.OperationType.COMPARE);
                     }
                     Node u = insert(h.children[j++].next, value, ht-1);
                     if (u == null){
                         return null;
                     }
-                    counterSet.inc(ICounterSet.ASSIGN);
+                    counterSet.inc(ICounterSet.OperationType.ASSIGN);
                     t.value = u.children[0].value;
                     t.next = u;
                     break;

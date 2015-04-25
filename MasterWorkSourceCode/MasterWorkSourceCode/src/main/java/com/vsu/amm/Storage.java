@@ -1,28 +1,45 @@
 package com.vsu.amm;
 
 import java.lang.Class;
-import com.vsu.amm.data.storage.IDataStorage;
 
+
+import java.util.HashMap;
 import java.util.Map;
+
+import org.jdom2.Element;
+
+import com.vsu.amm.data.storage.IDataStorage;
 
 public class Storage {
 
     String storageClass;
-    Map<String, String> params;
+    Map<String, String> storageParams;
 
+    public Storage(Element elem) {
+        String storageParamName;
+        String storageParamValue;
+    	storageClass = elem.getAttributeValue("class");
+        storageParams = new HashMap<>();
+        for (Element storageParam : elem.getChildren()) {
+            storageParamName = storageParam.getAttributeValue("name");
+            storageParamValue = storageParam.getAttributeValue("value");
+            storageParams.put(storageParamName, storageParamValue);
+        }
+    }
+    
     public Storage(String storageClass, Map<String, String> params) {
         this.storageClass = storageClass;
-        this.params = params;
+        this.storageParams = params;
     }
 
     public IDataStorage getStorage(){
-        IDataStorage storage = null;
+    	IDataStorage storage = null;
         try {
             Class c = Class.forName(storageClass);
             Object obj = c.newInstance();
             if (obj instanceof IDataStorage){
                 storage = (IDataStorage)obj;
-                storage.setStorageParams(params);
+                storage.setStorageParams(storageParams);
             }
         } catch (ClassNotFoundException e) {
             e.printStackTrace();

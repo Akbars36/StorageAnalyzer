@@ -108,7 +108,7 @@ public class BinaryTree implements IDataStorage {
             return null;
         }
         if (node.getValue() == value){
-            counterSet.inc(ICounterSet.COMPARE);
+            counterSet.inc(ICounterSet.OperationType.COMPARE);
             return node;
         }
         return find(value < node.getValue() ? node.getLeft() : node.getRight(), value);
@@ -123,9 +123,9 @@ public class BinaryTree implements IDataStorage {
         if (node == null){
             node = new Node(value);
             node.setParent(parent);
-            counterSet.inc(ICounterSet.ASSIGN);
+            counterSet.inc(ICounterSet.OperationType.ASSIGN);
         } else {
-            counterSet.inc(ICounterSet.COMPARE);
+            counterSet.inc(ICounterSet.OperationType.COMPARE);
             if (value < node.getValue()){
                 node.setLeft(insert(node.getLeft(), value, node));
             } else {
@@ -175,7 +175,7 @@ public class BinaryTree implements IDataStorage {
 
             boolean hasParent = element.getParent() != null;
             boolean isLeft = hasParent && element.getValue() < element.getParent().getValue();
-            counterSet.inc(ICounterSet.COMPARE);
+            counterSet.inc(ICounterSet.OperationType.COMPARE);
 
             if (element.getLeft() == null && element.getRight() == null) {
                 if (hasParent) {
@@ -184,7 +184,7 @@ public class BinaryTree implements IDataStorage {
                     } else {
                         element.getParent().setRight(null);
                     }
-                    counterSet.inc(ICounterSet.ASSIGN);
+                    counterSet.inc(ICounterSet.OperationType.ASSIGN);
                 }
             } else if (element.getLeft() != null && element.getRight() == null) {
                 if (hasParent) {
@@ -193,7 +193,7 @@ public class BinaryTree implements IDataStorage {
                     } else {
                         element.getParent().setRight(element.getLeft());
                     }
-                    counterSet.inc(ICounterSet.ASSIGN);
+                    counterSet.inc(ICounterSet.OperationType.ASSIGN);
                 } else {
                     node = element.getLeft();
                 }
@@ -207,11 +207,11 @@ public class BinaryTree implements IDataStorage {
                 } else {
                     node = element.getRight();
                 }
-                counterSet.inc(ICounterSet.ASSIGN);
+                counterSet.inc(ICounterSet.OperationType.ASSIGN);
             } else {
                 Node rightMin = findMin(element.getRight());
                 element.setValue(rightMin.getValue());
-                counterSet.inc(ICounterSet.ASSIGN);
+                counterSet.inc(ICounterSet.OperationType.ASSIGN);
                 return delete(rightMin, rightMin.getValue());
             }
         }

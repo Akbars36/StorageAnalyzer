@@ -58,9 +58,9 @@ public class CacheSortedArray implements  IDataStorage {
         if (!cache.contains(value)){
             Iterator<Integer> iterator = array.iterator();
             while((iterator.hasNext()) && (iterator.next() != value)){
-                counterSet.inc(ICounterSet.COMPARE);
+                counterSet.inc(ICounterSet.OperationType.COMPARE);
             }
-            counterSet.inc(ICounterSet.COMPARE);
+            counterSet.inc(ICounterSet.OperationType.COMPARE);
             if (cache.size() == cacheSize){
                 cache.remove(0);
             }
@@ -73,22 +73,22 @@ public class CacheSortedArray implements  IDataStorage {
         int index = 0;
         if (array.size() == 0){
             array.add(value);
-            counterSet.inc(ICounterSet.ASSIGN);
+            counterSet.inc(ICounterSet.OperationType.ASSIGN);
             return;
         } else {
             while((index < array.size()) && (array.get(index) < value)){
-                counterSet.inc(ICounterSet.COMPARE);
+                counterSet.inc(ICounterSet.OperationType.COMPARE);
                 index++;
             }
             if (index != array.size()){
-                counterSet.inc(ICounterSet.COMPARE);
+                counterSet.inc(ICounterSet.OperationType.COMPARE);
             }
             if (index == array.size()){
                 array.add(value);
-                counterSet.inc(ICounterSet.ASSIGN);
+                counterSet.inc(ICounterSet.OperationType.ASSIGN);
             } else {
                 array.add(index, value);
-                counterSet.inc(ICounterSet.ASSIGN, array.size() - index + 1);
+                counterSet.inc(ICounterSet.OperationType.ASSIGN, array.size() - index + 1);
             }
 
         }
@@ -106,11 +106,11 @@ public class CacheSortedArray implements  IDataStorage {
         while(!end){
             for(index = first; index < array.size(); index++){
                 if (array.get(index) == value){
-                    counterSet.inc(ICounterSet.COMPARE);
-                    counterSet.inc(ICounterSet.ASSIGN, array.size() - index);
+                    counterSet.inc(ICounterSet.OperationType.COMPARE);
+                    counterSet.inc(ICounterSet.OperationType.ASSIGN, array.size() - index);
                     break;
                 } else {
-                    counterSet.inc(ICounterSet.COMPARE);
+                    counterSet.inc(ICounterSet.OperationType.COMPARE);
                 }
             }
             if (index != array.size()){

@@ -78,7 +78,7 @@ public class SortedList implements IDataStorage {
         Node tmp = root;
         boolean found = false;
         while ((tmp != null) && !found ){
-            counterSet.inc(ICounterSet.COMPARE);
+            counterSet.inc(ICounterSet.OperationType.COMPARE);
             if (tmp.value == value){
                 found = true;
             }
@@ -92,12 +92,12 @@ public class SortedList implements IDataStorage {
             Node curr = root;
             Node prev = null;
             while ((curr != null) && (curr.value < value)){
-                counterSet.inc(ICounterSet.COMPARE);
+                counterSet.inc(ICounterSet.OperationType.COMPARE);
                 prev = curr;
                 curr = curr.next;
             }
-            counterSet.inc(ICounterSet.COMPARE);
-            counterSet.inc(ICounterSet.ASSIGN);
+            counterSet.inc(ICounterSet.OperationType.COMPARE);
+            counterSet.inc(ICounterSet.OperationType.ASSIGN);
             Node node = new Node(value);
             if (prev == null){
                 node.next = root;
@@ -107,7 +107,7 @@ public class SortedList implements IDataStorage {
                 prev.next = node;
             }
         } else {
-            counterSet.inc(ICounterSet.ASSIGN);
+            counterSet.inc(ICounterSet.OperationType.ASSIGN);
             root = new Node(value);
         }
     }
@@ -117,7 +117,7 @@ public class SortedList implements IDataStorage {
         Node curr = root;
         Node prev = null;
         while (curr != null){
-            counterSet.inc(ICounterSet.COMPARE);
+            counterSet.inc(ICounterSet.OperationType.COMPARE);
             if (curr.value == value){
                 if (curr == root){
                     root = root.next;

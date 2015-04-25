@@ -69,9 +69,9 @@ public class CacheArray implements IDataStorage {
         if (!cache.contains(value)){
             Iterator<Integer> iterator = array.iterator();
             while((iterator.hasNext()) && (iterator.next() != value)){
-                counterSet.inc(ICounterSet.COMPARE);
+                counterSet.inc(ICounterSet.OperationType.COMPARE);
             }
-            counterSet.inc(ICounterSet.COMPARE);
+            counterSet.inc(ICounterSet.OperationType.COMPARE);
             if (cache.size() == cacheSize){
                 cache.remove(0);
             }
@@ -81,7 +81,7 @@ public class CacheArray implements IDataStorage {
 
     @Override
     public void set(int value) {
-        counterSet.inc(ICounterSet.ASSIGN);
+        counterSet.inc(ICounterSet.OperationType.ASSIGN);
         array.add(value);
     }
 
@@ -97,11 +97,11 @@ public class CacheArray implements IDataStorage {
         while(!end){
             for(index = first; index < array.size(); index++){
                 if (array.get(index) == value){
-                    counterSet.inc(ICounterSet.COMPARE);
-                    counterSet.inc(ICounterSet.ASSIGN, array.size() - index);
+                    counterSet.inc(ICounterSet.OperationType.COMPARE);
+                    counterSet.inc(ICounterSet.OperationType.ASSIGN, array.size() - index);
                     break;
                 } else {
-                    counterSet.inc(ICounterSet.COMPARE);
+                    counterSet.inc(ICounterSet.OperationType.COMPARE);
                 }
             }
             if (index != array.size()){

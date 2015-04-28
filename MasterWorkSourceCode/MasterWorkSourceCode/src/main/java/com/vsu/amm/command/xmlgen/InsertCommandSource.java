@@ -91,7 +91,7 @@ public class InsertCommandSource implements ICommandSource {
     public ICommand next() {
         if (commands == null)
             return null;
-        if (commands.size() >= currentCommand)
+        if (commands.size() <= currentCommand)
             return null;
 
         return commands.get(currentCommand++);

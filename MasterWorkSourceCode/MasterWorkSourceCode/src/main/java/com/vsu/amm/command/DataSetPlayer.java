@@ -1,41 +1,54 @@
 package com.vsu.amm.command;
 
-import com.vsu.amm.data.IDataContainer;
+import java.util.List;
+
+import com.vsu.amm.data.storage.IDataStorage;
+import com.vsu.amm.data.stream.IDataStream;
 import com.vsu.amm.stat.ICounterSet;
 
 public class DataSetPlayer implements ICommandPlayer {
 
-    protected IDataContainer dataSet;
-    protected ICounterSet counterSet;
+	protected List<IDataStorage> dataSets;
+	protected IDataStream stream;
 
-    public DataSetPlayer(IDataContainer dataSet) {
-        super();
-        this.dataSet = dataSet;
-        this.counterSet = null;
-    }
+	// protected ICounterSet counterSet;
 
+	// public DataSetPlayer(IDataStorage dataSet) {
+	// super();
+	// this.dataSets = dataSets;
+	// this.counterSet = null;
+	// }
 
-    public DataSetPlayer(IDataContainer dataSet, ICounterSet counterSet) {
-        super();
-        this.dataSet = dataSet;
-        this.counterSet = counterSet;
-    }
+	public DataSetPlayer(List<IDataStorage> dataSets) {
+		super();
+		this.dataSets = dataSets;
+		// this.counterSet = counterSet;
+	}
 
+	public DataSetPlayer(List<IDataStorage> dataSets, IDataStream stream) {
+		super();
+		this.dataSets = dataSets;
+		this.stream = stream;
+	}
 
-    @Override
-    public void play(ICommandSource commandSource) {
-        if (commandSource == null)
-            return;
+	@Override
+	public void play(ICommandSource commandSource) {
+		if (commandSource == null)
+			return;
 
-        if (dataSet == null)
-            return;
+		if (dataSets == null)
+			return;
 
-        ICommand cmd = commandSource.next();
-        while (cmd != null) {
-            cmd.execute(dataSet);
-            cmd = commandSource.next();
-        }
+		ICommand cmd = commandSource.next();
+		while (cmd != null) {
+			for (int i = 0; i < dataSets.size(); i++)
+				cmd.execute(dataSets.get(i));
+			cmd.printToStream(stream);
+			cmd = commandSource.next();
+		}
+		if(stream!=null)
+			stream.close();
 
-    }
+	}
 
 }

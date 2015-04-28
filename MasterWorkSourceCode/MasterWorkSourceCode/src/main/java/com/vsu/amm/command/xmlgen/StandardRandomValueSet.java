@@ -42,7 +42,7 @@ public class StandardRandomValueSet extends BaseValueSet {
     public Integer reuseRandom() {
         if (storedValues.isEmpty())
             return null;
-        return storedValues.get(random.nextInt() % storedValues.size());
+        return storedValues.get(random.nextInt(storedValues.size()));
     }
 
     @Override

@@ -20,7 +20,7 @@ public class SequenceCommandSource implements ICommandSource {
         if (elem == null)
             return;
 
-        if (!"block".equals(elem.getName()))
+        if (!"sequence".equals(elem.getName()))
             return;
 
         label = elem.getAttributeValue("label");

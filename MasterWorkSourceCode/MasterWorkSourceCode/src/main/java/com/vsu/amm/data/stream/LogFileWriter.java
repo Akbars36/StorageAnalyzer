@@ -30,6 +30,7 @@ public class LogFileWriter implements IDataStream {
 
     }
 
+    @Override
     public void close() {
         if (out != null) {
             out.flush();

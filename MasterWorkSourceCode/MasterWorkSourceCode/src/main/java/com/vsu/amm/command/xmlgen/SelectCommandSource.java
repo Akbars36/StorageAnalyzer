@@ -94,7 +94,7 @@ public class SelectCommandSource implements ICommandSource {
         if (commands == null)
             return null;
 
-        if (commands.size() >= currentCommand)
+        if (commands.size() <= currentCommand)
             return null;
 
         return commands.get(currentCommand++);

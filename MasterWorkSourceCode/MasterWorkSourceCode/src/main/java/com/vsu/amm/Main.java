@@ -1,7 +1,9 @@
 package com.vsu.amm;
 
 import com.vsu.amm.command.DataSetPlayer;
+import com.vsu.amm.data.stream.LogFileWriter;
 import com.vsu.amm.load.XMLLoader;
+
 import org.apache.log4j.Logger;
 
 /**
@@ -21,7 +23,8 @@ public class Main {
         //ProcessLoadXML processLoadXML = new ProcessLoadXML();
         XMLLoader loader = new XMLLoader();
         loader.ParseXML(fileName);
-        DataSetPlayer dsp = new DataSetPlayer(loader.storages.get(0));
+        LogFileWriter logFileWriter = new LogFileWriter("testmotherfucker.txt");
+        DataSetPlayer dsp = new DataSetPlayer(loader.storages,logFileWriter);
         dsp.play(loader.commands.get(0));
         //LogFileWriter logFileWriter = new LogFileWriter(Constants.DEFAULT_OUTPUT_FILE_NAME);
         //processLoadXML.processXMLNew(fileName, logFileWriter);

@@ -1,6 +1,9 @@
 package com.vsu.amm.data.storage;
 
 import com.vsu.amm.Constants;
+import com.vsu.amm.Storage;
+import com.vsu.amm.stat.SimpleCounterSet;
+
 import org.apache.log4j.Logger;
 import org.jdom2.Element;
 
@@ -41,19 +44,25 @@ public class StorageGenerator {
                 log.warn("Class name not set. Skipped.");
                 continue;
             }
-            IDataStorage storage = getDataStorage(c);
-            if (storage != null)
-                storages.add(storage);
+            Storage storage = new Storage(child);
+            if (storage != null){
+            	IDataStorage stor=storage.getStorage();
+            	stor.setCounterSet(new SimpleCounterSet());
+                storages.add(stor);
+            }
         }
 
         return storages;
     }
 
     public static IDataStorage getDataStorage(String storageName) {
+    	IDataStorage result;
         if (storageName == null)
             return null;
         try {
             Object o = Class.forName(storageName).newInstance();
+            result=(IDataStorage) o;
+            
             return (IDataStorage) o;
         } catch (Exception e) {
             log.error("Cannot find or create class");

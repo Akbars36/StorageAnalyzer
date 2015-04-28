@@ -1,6 +1,5 @@
 package com.vsu.amm.data.storage;
 
-import com.vsu.amm.Storage;
 import com.vsu.amm.stat.ICounterSet;
 import com.vsu.amm.stat.SimpleCounterSet;
 
@@ -96,8 +95,7 @@ public class HashTable implements IDataStorage {
         if (hashTable.containsKey(key)) {
             hashTable.get(key).set(value);
         } else {
-            Storage storage = new Storage(storageClass, storageParams);
-            IDataStorage temp = storage.getStorage();
+        	IDataStorage temp=StorageGenerator.getDataStorage(storageClass, storageParams);
             temp.setCounterSet(counterSet);
             temp.set(value);
             hashTable.put(key, temp);

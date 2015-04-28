@@ -2,7 +2,6 @@ package com.vsu.amm.load;
 
 import com.vsu.amm.Burden;
 import com.vsu.amm.Constants;
-import com.vsu.amm.Storage;
 import com.vsu.amm.data.storage.IDataStorage;
 import com.vsu.amm.data.stream.DataStreamImpl;
 import com.vsu.amm.data.stream.IDataStream;
@@ -399,8 +398,8 @@ public class ProcessLoadXML {
             //Get storages
             storagesNode = rootNode.getChild(Constants.STORAGES_TAG_NAME);
             for (Element storageNode : storagesNode.getChildren()) {
-                Storage storage = new Storage(storageNode);
-                dataStorages.add(storage.getStorage());
+//                Storage storage = new Storage(storageNode);
+//                dataStorages.add(storage.getStorage());
             }
             /*storageNode = rootNode.getChild(Constants.STORAGE_TAG_NAME);
             storageClass = storageNode.getAttributeValue("class");

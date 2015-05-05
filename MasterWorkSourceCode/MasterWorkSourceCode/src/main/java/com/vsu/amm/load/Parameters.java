@@ -1,14 +1,13 @@
 package com.vsu.amm.load;
 
-import com.vsu.amm.MasterWorkException;
 import com.vsu.amm.Utils;
-
 import org.jdom2.Element;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
- * Created by Kzarw on 25.04.2015.
+ * Created by Nikita Skornyakov on 25.04.2015.
  */
 public class Parameters {
 
@@ -83,7 +82,7 @@ public class Parameters {
 					generateParams(params.subList(1, params.size()), result,
 							resultString + name + "=" + value + ";");
 				} else {
-					generateParams(new ArrayList<String>(), result,
+					generateParams(new ArrayList<>(), result,
 							resultString + name + "=" + value + ";");
 				}
 			}
@@ -95,34 +94,92 @@ public class Parameters {
 		return parameters;
 	}
 
-	// public Iterator<Map<String, String>> getParametersIterator() throws
-	// MasterWorkException {
-	// if (parameters == null)
-	// return null;
-	//
-	// return getParametersIterator(parameters.keySet());
-	// }
+	class ParamHelper {
+		public int currentIndex = 0;
+		public int paramCount;
+		public String paramName;
 
-	// public Iterator<Map<String, String>> getParametersIterator(Set<String>
-	// paramNames) throws MasterWorkException {
-	// if (paramNames == null)
-	// return null;
-	//
-	// if (parameters == null)
-	// return null;
-	//
-	// Map<String, String> paramLenghts = new HashMap<>();
-	//
-	// for (String paramName : paramNames) {
-	// List<String> paramValues = parameters.get(paramName);
-	// if (paramValues == null)
-	// throw new MasterWorkException("Parameter " + paramName + " not found!");
-	// if (paramValues.size() == 0)
-	// throw new MasterWorkException("Parameter " + paramName +
-	// " has no values!");
-	// paramLenghts.put(paramName, paramValues.size());
-	// }
-	// return null;
-	//
-	// }
+		public ParamHelper(String paramName, int paramCount) {
+			this.paramCount = paramCount;
+			this.paramName = paramName;
+		}
+	}
+
+	public Iterator<Map<String, String>> getParamIterator() {
+
+		return new Iterator<Map<String, String>>() {
+			//store all parameters in paramHelper for future iterate
+			List<ParamHelper> helpers = new ArrayList<>(parameters.keySet().stream().map(paramName ->
+					new ParamHelper(paramName, parameters.get(paramName).size())).collect(Collectors.toList()));
+			Map<String, List<String>> p = parameters;
+
+			@Override
+			public boolean hasNext() {
+				return helpers.size() != 0 && helpers.get(0).paramCount > helpers.get(0).currentIndex;
+
+			}
+
+			@Override
+			public Map<String, String> next() {
+				if (!hasNext())
+					return null;
+
+				Map<String, String> result = new HashMap<>(p.size());
+				for (ParamHelper helper : helpers)
+					result.put(helper.paramName, p.get(helper.paramName).get(helper.currentIndex));
+
+				for (int i = helpers.size() - 1; i > 0; i--) {
+					ParamHelper helper = helpers.get(i);
+					helper.currentIndex++;
+					if (helper.currentIndex != helper.paramCount)
+						return result;
+					helper.currentIndex = 0;
+				}
+				helpers.get(0).currentIndex++;
+				return result;
+			}
+		};
+	}
+
+	public Iterator<Map<String, String>> getParamIterator(List<String> paramNames) {
+
+		return new Iterator<Map<String, String>>() {
+			//store all parameters in paramHelper for future iterate
+			List<ParamHelper> helpers = new ArrayList<>(paramNames.stream().map(paramName ->
+					new ParamHelper(paramName, parameters.get(paramName) == null ? 0 :
+							parameters.get(paramName).size())).collect(Collectors.toList()));
+
+			Map<String, List<String>> p = parameters;
+
+			@Override
+			public boolean hasNext() {
+				for (int i = 0; i < helpers.size(); i++) {
+					ParamHelper helper = helpers.get(i);
+					if (helper.paramCount != 0)
+						return helper.paramCount > helper.currentIndex;
+				}
+				return false;
+			}
+
+			@Override
+			public Map<String, String> next() {
+				if (!hasNext())
+					return null;
+
+				Map<String, String> result = new HashMap<>(p.size());
+				for (ParamHelper helper : helpers)
+					result.put(helper.paramName, p.get(helper.paramName).get(helper.currentIndex));
+
+				for (int i = helpers.size() - 1; i > 0; i--) {
+					ParamHelper helper = helpers.get(i);
+					helper.currentIndex++;
+					if (helper.currentIndex != helper.paramCount)
+						return result;
+					helper.currentIndex = 0;
+				}
+				helpers.get(0).currentIndex++;
+				return result;
+			}
+		};
+	}
 }

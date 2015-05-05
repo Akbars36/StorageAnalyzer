@@ -28,8 +28,18 @@ public class CacheArray implements IDataStorage {
         }
         cache = new LinkedList<>();
     }
+    
+    
 
-    @Override
+    public int getCacheSize() {
+		return cacheSize;
+	}
+
+	public void setCacheSize(int cacheSize) {
+		this.cacheSize = cacheSize;
+	}
+
+	@Override
     public void setCounterSet(ICounterSet counterSet) {
         this.counterSet = counterSet;
 

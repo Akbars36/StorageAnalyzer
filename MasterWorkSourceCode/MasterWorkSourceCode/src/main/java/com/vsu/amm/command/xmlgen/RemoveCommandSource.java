@@ -1,10 +1,13 @@
 package com.vsu.amm.command.xmlgen;
 
+import com.vsu.amm.Constants;
 import com.vsu.amm.Utils;
 import com.vsu.amm.command.ICommand;
 import com.vsu.amm.command.ICommandSource;
 import com.vsu.amm.command.RemoveCommand;
+import com.vsu.amm.command.SelectCommand;
 import com.vsu.amm.data.stream.IDataStream;
+
 import org.jdom2.Element;
 
 import java.util.ArrayList;
@@ -13,103 +16,150 @@ import java.util.Map;
 
 public class RemoveCommandSource implements ICommandSource {
 
-    List<ICommand> commands = null;
-    int currentCommand = 0;
-    BaseValueSet valueSet;
-    String label;
+	List<ICommand> commands = null;
+	int currentCommand = 0;
+	BaseValueSet valueSet;
+	String label;
 
-    public RemoveCommandSource(Element elem, AliasSet aliasSet, Map<String, Integer> params) {
-        if (elem == null) {
-            return;
-        }
+	public RemoveCommandSource(Element elem, AliasSet aliasSet,
+			Map<String, Integer> params) {
+		if (elem == null) {
+			return;
+		}
 
-        String from = elem.getAttributeValue("from");
-        valueSet = aliasSet.getAlias(from);
-        boolean reuseValues = valueSet != null;
+		String from = elem.getAttributeValue("from");
+		valueSet = aliasSet.getAlias(from);
+		boolean reuseValues = valueSet != null;
 
-        Integer tmp;
+		Integer tmp;
 
-        if (valueSet == null) {
-            tmp = getAttributeValue(elem, "min", params);
-            int min = tmp == null ? 0 : tmp;
-            tmp = getAttributeValue(elem, "max", params);
-            int max = tmp == null ? Integer.MAX_VALUE : tmp;
-            valueSet = new StandardRandomValueSet(min, max);
-        }
+		if (valueSet == null) {
+			tmp = getAttributeValue(elem, "min", params);
+			int min = tmp == null ? 0 : tmp;
+			tmp = getAttributeValue(elem, "max", params);
+			int max = tmp == null ? Integer.MAX_VALUE : tmp;
+			valueSet = new StandardRandomValueSet(min, max);
+		}
 
-        String alias = elem.getAttributeValue("alias");
+		String alias = elem.getAttributeValue("alias");
 
-        if (!Utils.isNullOrEmpty(alias)) {
-            aliasSet.putAlias(alias, valueSet);
-        }
+		if (!Utils.isNullOrEmpty(alias)) {
+			aliasSet.putAlias(alias, valueSet);
+		}
 
-        tmp = getAttributeValue(elem, "count", params);
-        int count = tmp == null ? 1 : tmp;
+		tmp = getAttributeValue(elem, "count", params);
+		int count = tmp == null ? 1 : tmp;
 
-        commands = new ArrayList<>(count);
+		commands = new ArrayList<>(count);
 
-        if (reuseValues && valueSet.hasStoredValues())
-            for (int i = 0; i < count; i++)
-                commands.add(new RemoveCommand(valueSet.reuseRandom().intValue()));
-        else if (!Utils.isNullOrEmpty(alias))
-            for (int i = 0; i < count; i++)
-                commands.add(new RemoveCommand(valueSet.generateRandomAndStore()));
-        else
-            for (int i = 0; i < count; i++) {
-                commands.add(new RemoveCommand(valueSet.generateRandom()));
-            }
+		if (reuseValues && valueSet.hasStoredValues())
+			for (int i = 0; i < count; i++)
+				commands.add(new RemoveCommand(valueSet.reuseRandom()
+						.intValue()));
+		else if (!Utils.isNullOrEmpty(alias))
+			for (int i = 0; i < count; i++)
+				commands.add(new RemoveCommand(valueSet
+						.generateRandomAndStore()));
+		else
+			for (int i = 0; i < count; i++) {
+				commands.add(new RemoveCommand(valueSet.generateRandom()));
+			}
 
-        label = elem.getAttributeValue("label");
-    }
+		label = elem.getAttributeValue("label");
+	}
 
-    private Integer getAttributeValue(Element element, String attributeName, Map<String, Integer> params) {
-        String strAttribute = element.getAttributeValue(attributeName);
-        if (strAttribute == null)
-            return null;
+	public RemoveCommandSource(Integer removeCount, AliasSet aliasSet) {
+		valueSet = new StandardRandomValueSet(0, Constants.DEFAULT_MAX_VALUE);
+		valueSet = aliasSet.getAlias(Constants.DEFAULT_ALIAS_NAME);
+		if (valueSet.hasStoredValues()) {
+			commands = new ArrayList<>(removeCount);
+			for (int i = 0; i < removeCount; i++)
+				commands.add(new RemoveCommand(valueSet.reuseRandom()
+						.intValue()));
+		}
+	}
 
-        if (strAttribute.startsWith("%") && strAttribute.endsWith("%")) {
-            strAttribute = strAttribute.substring(1, strAttribute.length() - 1);
-            return params != null ? params.get(strAttribute) : null;
-        }
+	private Integer getAttributeValue(Element element, String attributeName,
+			Map<String, Integer> params) {
+		String strAttribute = element.getAttributeValue(attributeName);
+		if (strAttribute == null)
+			return null;
 
-        Integer attrValue = null;
-        try {
-            attrValue = Integer.parseInt(strAttribute);
-        } catch (Exception ex) {
-            System.out.println("Cannot parse parameter: " + attributeName);
-        }
+		if (strAttribute.startsWith("%") && strAttribute.endsWith("%")) {
+			strAttribute = strAttribute.substring(1, strAttribute.length() - 1);
+			return params != null ? params.get(strAttribute) : null;
+		}
 
-        return attrValue;
-    }
+		Integer attrValue = null;
+		try {
+			attrValue = Integer.parseInt(strAttribute);
+		} catch (Exception ex) {
+			System.out.println("Cannot parse parameter: " + attributeName);
+		}
 
-    @Override
-    public void restart() {
-        currentCommand = 0;
-    }
+		return attrValue;
+	}
 
-    @Override
-    public ICommand next() {
-        if (commands == null)
-            return null;
-        if (commands.size() >= currentCommand)
-            return null;
+	@Override
+	public void restart() {
+		currentCommand = 0;
+	}
 
-        return commands.get(currentCommand++);
-    }
+	@Override
+	public ICommand next() {
+		if (commands == null)
+			return null;
+		if (commands.size() <= currentCommand)
+			return null;
 
-    @Override
-    public void printToStream(IDataStream stream) {
-        if (commands == null) {
-            return;
-        }
+		return commands.get(currentCommand++);
+	}
 
-        if (stream == null) {
-            return;
-        }
+	@Override
+	public void printToStream(IDataStream stream) {
+		if (commands == null) {
+			return;
+		}
 
-        if (label != null)
-            stream.label(label);
-        commands.forEach(iCommand -> iCommand.printToStream(stream));
-    }
+		if (stream == null) {
+			return;
+		}
+
+		if (label != null)
+			stream.label(label);
+		commands.forEach(iCommand -> iCommand.printToStream(stream));
+	}
+
+	public List<ICommand> getCommands() {
+		return commands;
+	}
+
+	public void setCommands(List<ICommand> commands) {
+		this.commands = commands;
+	}
+
+	public int getCurrentCommand() {
+		return currentCommand;
+	}
+
+	public void setCurrentCommand(int currentCommand) {
+		this.currentCommand = currentCommand;
+	}
+
+	public BaseValueSet getValueSet() {
+		return valueSet;
+	}
+
+	public void setValueSet(BaseValueSet valueSet) {
+		this.valueSet = valueSet;
+	}
+
+	public String getLabel() {
+		return label;
+	}
+
+	public void setLabel(String label) {
+		this.label = label;
+	}
 
 }

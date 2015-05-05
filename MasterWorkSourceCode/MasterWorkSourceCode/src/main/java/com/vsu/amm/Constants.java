@@ -24,4 +24,7 @@ public class Constants {
     public static final String STORAGES_TAG_NAME = "storages";
     public static final String DATA_TAG_NAME = "data";
     public static final String PARAMS_TAG_NAME = "param_values";
+	public static final String DEFAULT_ALIAS_NAME = "alias";
+	public static final int DEFAULT_MAX_VALUE = 300;
+	public static final String DEFAULT_LOG_FILE_NAME = "log";
 }

@@ -111,4 +111,30 @@ public class BlockCommandSource implements ICommandSource {
 
         commands.forEach(iCommandSource -> iCommandSource.printToStream(stream));
     }
+
+	public List<ICommandSource> getCommands() {
+		return commands;
+	}
+
+	public void setCommands(List<ICommandSource> commands) {
+		this.commands = commands;
+	}
+
+	public int getCurrentCommandSourceIndex() {
+		return currentCommandSourceIndex;
+	}
+
+	public void setCurrentCommandSourceIndex(int currentCommandSourceIndex) {
+		this.currentCommandSourceIndex = currentCommandSourceIndex;
+	}
+
+	public String getLabel() {
+		return label;
+	}
+
+	public void setLabel(String label) {
+		this.label = label;
+	}
+    
+    
 }

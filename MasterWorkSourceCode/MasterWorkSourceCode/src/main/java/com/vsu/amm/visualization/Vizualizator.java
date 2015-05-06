@@ -42,7 +42,10 @@ public class Vizualizator {
 					List<Integer> result = DataGenerator.getContersForStorages(
 							storages, res.getInsertCoord(),
 							res.getSelectCoord(), res.getRemoveCoord());
-					System.out.println("    "+result.get(0));
+					for(int i=0;i<result.size();i++){
+						System.out.print("    "+result.get(i));
+					};
+					System.out.println();
 					if (storages.size() == 1) {
 						Integer cur = storages.get(0).getCounterSet()
 								.get(OperationType.ASSIGN)
@@ -80,11 +83,20 @@ public class Vizualizator {
 			curRange=data.getMax()-data.getMin();
 		for(Entry<Point2D,List<Integer>> entry:coeffs.entrySet()){
 			Point2D point =entry.getKey();
+			List<Integer> vals=entry.getValue();
 			if(isSingle){
-				double ratio=(entry.getValue().get(0)-data.getMin())/curRange;
+				double ratio=(vals.get(0)-data.getMin())/curRange;
 				curColor=DrawUtils.getLinearGradient(ratio, DrawConstants.COLORS[0], DrawConstants.COLORS[1]);
 			}else{
-				
+				int minInd=0;
+				int min=vals.get(minInd);
+				for(int i=0;i<vals.size();i++){
+					if(vals.get(i)<min){
+						minInd=i;
+						min=vals.get(i);
+					}
+				}
+				curColor=DrawConstants.COLORS[minInd];
 			}
 			image.setRGB((int)point.getX()+DrawConstants.OFFSET, size-(int)point.getY()+DrawConstants.OFFSET, curColor.getRGB());
 		}

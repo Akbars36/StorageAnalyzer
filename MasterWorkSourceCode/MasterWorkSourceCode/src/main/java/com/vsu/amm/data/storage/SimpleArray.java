@@ -4,7 +4,6 @@ import com.vsu.amm.stat.ICounterSet;
 
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.Map;
 
 /**
  * Created with IntelliJ IDEA.
@@ -13,52 +12,26 @@ import java.util.Map;
  * Time: 20:21
  * To change this template use File | Settings | File Templates.
  */
-public class SimpleArray implements IDataStorage {
+public class SimpleArray extends AbstractStorage {
 
-    ArrayList<Integer> array;
-    Map<String, String> params;
+    private final ArrayList<Integer> array;
 
-    ICounterSet counterSet;
-
-    public SimpleArray(){
+    public SimpleArray() {
         array = new ArrayList<>();
-    }
-
-    public SimpleArray(Map<String, String> params){
-        array = new ArrayList<>();
-        this.params = params;
-
-    }
-
-    @Override
-    public void setCounterSet(ICounterSet counterSet) {
-        this.counterSet = counterSet;
-    }
-
-    @Override
-    public ICounterSet getCounterSet() {
-        return counterSet;
-    }
-
-    @Override
-    public void setStorageParams(Map<String, String> params) {
-        this.params = params;
-    }
-
-    @Override
-    public Map<String, String> getStorageParams() {
-        return params;
     }
 
     @Override
     public void clear() {
+        super.clear();
         array.clear();
     }
 
     @Override
     public void get(int value) {
+        if (getFromCache(value))
+            return;
         Iterator<Integer> iterator = array.iterator();
-        while((iterator.hasNext()) && (iterator.next() != value)){
+        while ((iterator.hasNext()) && (iterator.next() != value)) {
             counterSet.inc(ICounterSet.OperationType.COMPARE);
         }
         counterSet.inc(ICounterSet.OperationType.COMPARE);
@@ -66,18 +39,20 @@ public class SimpleArray implements IDataStorage {
 
     @Override
     public void set(int value) {
+        super.set(value);
         counterSet.inc(ICounterSet.OperationType.ASSIGN);
         array.add(value);
     }
 
     @Override
     public void remove(int value) {
-        int index = 0;
+        super.remove(value);
+        int index;
         int first = 0;
         boolean end = false;
-        while(!end){
-            for(index = first; index < array.size(); index++){
-                if (array.get(index) == value){
+        while (!end) {
+            for (index = first; index < array.size(); index++) {
+                if (array.get(index) == value) {
                     counterSet.inc(ICounterSet.OperationType.COMPARE);
                     counterSet.inc(ICounterSet.OperationType.ASSIGN, array.size() - index);
                     break;
@@ -85,7 +60,7 @@ public class SimpleArray implements IDataStorage {
                     counterSet.inc(ICounterSet.OperationType.COMPARE);
                 }
             }
-            if (index != array.size()){
+            if (index != array.size()) {
                 first = index;
                 array.remove(index);
             } else {

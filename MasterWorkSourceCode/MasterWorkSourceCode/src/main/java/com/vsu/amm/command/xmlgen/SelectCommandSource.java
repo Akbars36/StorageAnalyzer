@@ -1,48 +1,38 @@
 package com.vsu.amm.command.xmlgen;
 
 import com.vsu.amm.Utils;
-import com.vsu.amm.command.ICommand;
-import com.vsu.amm.command.ICommandSource;
 import com.vsu.amm.command.SelectCommand;
-import com.vsu.amm.data.stream.IDataStream;
 import org.jdom2.Element;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
-public class SelectCommandSource implements ICommandSource {
-
-    List<ICommand> commands = null;
-    int currentCommand = 0;
-    BaseValueSet valueSet;
-    String label;
-
+public class SelectCommandSource extends SimpleCommandSource {
 
     public SelectCommandSource(Element elem, AliasSet aliasSet, Map<String, Integer> params) {
-        if (elem == null) {
+        if (elem == null)
             return;
-        }
 
         String from = elem.getAttributeValue("from");
-        valueSet = aliasSet.getAlias(from);
+        if (aliasSet != null)
+            valueSet = aliasSet.getAlias(from);
+
         boolean reuseValues = valueSet != null;
 
         Integer tmp;
 
         if (valueSet == null) {
-            tmp = getAttributeValue(elem, "min", params);
-            int min = tmp == null ? 0 : tmp;
-            tmp = getAttributeValue(elem, "max", params);
-            int max = tmp == null ? Integer.MAX_VALUE : tmp;
-            valueSet = new StandardRandomValueSet(min, max);
+
+            String minAttr = elem.getAttributeValue("min");
+            String maxAttr = elem.getAttributeValue("max");
+
+            valueSet = new StandardRandomValueSet(minAttr, maxAttr, params);
         }
 
         String alias = elem.getAttributeValue("alias");
 
-        if (!Utils.isNullOrEmpty(alias)) {
+        if (!Utils.isNullOrEmpty(alias) && aliasSet != null)
             aliasSet.putAlias(alias, valueSet);
-        }
 
         tmp = getAttributeValue(elem, "count", params);
         int count = tmp == null ? 1 : tmp;
@@ -62,56 +52,4 @@ public class SelectCommandSource implements ICommandSource {
 
         label = elem.getAttributeValue("label");
     }
-
-    private Integer getAttributeValue(Element element, String attributeName, Map<String, Integer> params) {
-        String strAttribute = element.getAttributeValue(attributeName);
-        if (strAttribute == null)
-            return null;
-
-        if (strAttribute.startsWith("%") && strAttribute.endsWith("%")) {
-            strAttribute = strAttribute.substring(1, strAttribute.length() - 1);
-            return params != null ? params.get(strAttribute) : null;
-        }
-
-        Integer attrValue = null;
-
-        try {
-            attrValue = Integer.parseInt(strAttribute);
-        } catch (Exception ex) {
-            System.out.println("Cannot parse parameter: " + attributeName);
-        }
-
-        return attrValue;
-    }
-
-    @Override
-    public void restart() {
-        currentCommand = 0;
-    }
-
-    @Override
-    public ICommand next() {
-        if (commands == null)
-            return null;
-
-        if (commands.size() <= currentCommand)
-            return null;
-
-        return commands.get(currentCommand++);
-    }
-
-    @Override
-    public void printToStream(IDataStream stream) {
-        if (commands == null)
-            return;
-
-        if (stream == null)
-            return;
-
-        if (label != null)
-            stream.label(label);
-
-        commands.forEach(iCommand -> iCommand.printToStream(stream));
-    }
-
 }

@@ -1,5 +1,7 @@
 package com.vsu.amm.command.xmlgen;
 
+import java.util.Map;
+
 public abstract class BaseValueSet {
 
     abstract public int generateRandom();
@@ -14,4 +16,7 @@ public abstract class BaseValueSet {
         return false;
     }
 
+    abstract public void clearStoredValues();
+
+    abstract public void setParams(Map<String, Integer> params);
 }

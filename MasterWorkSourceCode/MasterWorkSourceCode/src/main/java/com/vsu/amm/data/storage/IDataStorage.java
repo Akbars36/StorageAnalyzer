@@ -1,6 +1,7 @@
 package com.vsu.amm.data.storage;
 
 import com.vsu.amm.data.IDataContainer;
+import com.vsu.amm.data.cache.AbstractCache;
 import com.vsu.amm.stat.ICounterSet;
 
 import java.util.Map;
@@ -13,9 +14,13 @@ import java.util.Map;
  * To change this template use File | Settings | File Templates.
  */
 public interface IDataStorage extends IDataContainer {
-    public void setCounterSet(ICounterSet counterSet);
-    public ICounterSet getCounterSet();
-    public void setStorageParams(Map<String, String> params);
-    public Map<String, String> getStorageParams();
-    public void clear();
+    ICounterSet getCounterSet();
+
+    void setCounterSet(ICounterSet counterSet);
+
+    void setCache(AbstractCache cache);
+
+    void setStorageParams(Map<String, Integer> params);
+
+    void clear();
 }

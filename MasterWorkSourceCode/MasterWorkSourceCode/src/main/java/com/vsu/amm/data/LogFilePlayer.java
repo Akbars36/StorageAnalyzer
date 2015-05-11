@@ -5,7 +5,6 @@ import com.vsu.amm.MasterWorkException;
 import org.apache.log4j.Logger;
 
 import java.io.BufferedReader;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 
@@ -16,7 +15,7 @@ import java.io.IOException;
  * Time: 20:19
  * To change this template use File | Settings | File Templates.
  */
-public class LogFilePlayer {
+class LogFilePlayer {
 
     private static final Logger log = Logger.getLogger(LogFilePlayer.class);
 
@@ -50,8 +49,6 @@ public class LogFilePlayer {
                 }
             }
             br.close();
-        } catch (FileNotFoundException e) {
-            log.error(new MasterWorkException(e.getMessage(), e));
         } catch (IOException e) {
             log.error(new MasterWorkException(e.getMessage(), e)); //To change body of catch statement use File | Settings | File Templates.
         }

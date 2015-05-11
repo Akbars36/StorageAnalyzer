@@ -4,9 +4,9 @@ package com.vsu.amm.command.xmlgen;
 import java.util.HashMap;
 import java.util.Map;
 
-public class AliasSet {
+class AliasSet {
 
-    Map<String, BaseValueSet> aliases = new HashMap<>();
+    private final Map<String, BaseValueSet> aliases = new HashMap<>();
 
     public BaseValueSet getAlias(String name) {
         if (name == null)

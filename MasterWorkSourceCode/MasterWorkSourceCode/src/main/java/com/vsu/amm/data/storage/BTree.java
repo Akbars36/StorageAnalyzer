@@ -1,20 +1,18 @@
 package com.vsu.amm.data.storage;
 
 import com.vsu.amm.stat.ICounterSet;
-import com.vsu.amm.stat.SimpleCounterSet;
 
 import java.util.Map;
 
 /**
  * Created by VLAD on 26.03.14.
  */
-public class BTree implements IDataStorage  {
+public class BTree extends AbstractStorage {
     private static final String CHILDREN_PAMAN_NAME = "children_count";
     private static final int MAX_CHILDREN_COUNT = 4;    // max children per B-tree node = MAX_CHILDREN_COUNT-1
 
 
-    ICounterSet counterSet;
-    Map<String, String> storageParams;
+    private ICounterSet counterSet;
 
     private Node root;
     private int treeHeight;
@@ -22,37 +20,17 @@ public class BTree implements IDataStorage  {
     private int childrenCount;
 
 
-    private static final class Node {
-        private int m;                             // number of children
-        private Entry[] children;// = new Entry[MAX_CHILDREN_COUNT];   // the array of children
-        private Node(int k, int maxChildren) {
-            children = new Entry[maxChildren];
-            m = k;
-        }             // create a node with k children
-    }
-
-    // internal nodes: only use key and next
-    // external nodes: only use key and value
-    private static class Entry {
-        private int value;
-        private Node next;     // helper field to iterate over array entries
-        public Entry(int value, Node next) {
-            this.value = value;
-            this.next  = next;
-        }
-    }
-
     // constructor
     public BTree() {
         root = new Node(0, childrenCount);
     }
 
-    public BTree(Map<String, String> params) {
+    public BTree(Map<String, Integer> params) {
+        super();
         root = new Node(0, childrenCount);
-        this.storageParams = params;
-        if (storageParams != null && storageParams.containsKey(CHILDREN_PAMAN_NAME)){
-            childrenCount = Integer.parseInt(storageParams.get(CHILDREN_PAMAN_NAME));
-            if (childrenCount > MAX_CHILDREN_COUNT){
+        if (params != null && params.containsKey(CHILDREN_PAMAN_NAME)) {
+            childrenCount = params.get(CHILDREN_PAMAN_NAME);
+            if (childrenCount > MAX_CHILDREN_COUNT) {
                 childrenCount = MAX_CHILDREN_COUNT;
             }
         } else {
@@ -60,40 +38,22 @@ public class BTree implements IDataStorage  {
         }
     }
 
-
     @Override
-    public void setCounterSet(ICounterSet counterSet) {
-        this.counterSet = counterSet;
-    }
-
-    @Override
-    public ICounterSet getCounterSet() {
-        return counterSet;
-    }
-
-
-    @Override
-    public void setStorageParams(Map<String, String> params) {
-        this.storageParams = params;
-        if (storageParams != null && storageParams.containsKey(CHILDREN_PAMAN_NAME)){
-            childrenCount = Integer.parseInt(storageParams.get(CHILDREN_PAMAN_NAME));
-            if (childrenCount > MAX_CHILDREN_COUNT){
+    public void setStorageParams(Map<String, Integer> params) {
+        super.setStorageParams(params);
+        if (params != null && params.containsKey(CHILDREN_PAMAN_NAME)) {
+            childrenCount = params.get(CHILDREN_PAMAN_NAME);
+            if (childrenCount > MAX_CHILDREN_COUNT) {
                 childrenCount = MAX_CHILDREN_COUNT;
             }
         }
     }
 
     @Override
-    public Map<String, String> getStorageParams() {
-        return storageParams;
-    }
-
-    @Override
     public void clear() {
+        super.clear();
         root = new Node(0, childrenCount);
-        counterSet = new SimpleCounterSet();
     }
-
 
     // return number of key-value pairs in the B-tree
     public int size() {
@@ -106,6 +66,8 @@ public class BTree implements IDataStorage  {
     }
 
     public void get(int value) {
+        if (getFromCache(value))
+            return;
         search(root, value, treeHeight);
     }
 
@@ -116,7 +78,7 @@ public class BTree implements IDataStorage  {
         if (ht == 0) {
             for (int j = 0; j < x.m; j++) {
                 counterSet.inc(ICounterSet.OperationType.COMPARE);
-                if (value == children[j].value){
+                if (value == children[j].value) {
                     return;
                 }
             }
@@ -124,17 +86,18 @@ public class BTree implements IDataStorage  {
         // internal node
         else {
             for (int j = 0; j < x.m; j++) {
-                if (j+1 == x.m || value < children[j+1].value){
-                    if (j+1 != x.m){
+                if (j + 1 == x.m || value < children[j + 1].value) {
+                    if (j + 1 != x.m) {
                         counterSet.inc(ICounterSet.OperationType.COMPARE);
                     }
-                    search(children[j].next, value, ht-1);
+                    search(children[j].next, value, ht - 1);
                 }
             }
         }
     }
 
     public void set(int value) {
+        super.set(value);
         Node u = insert(root, value, treeHeight);
         elementsCount++;
         if (u == null) {
@@ -151,9 +114,8 @@ public class BTree implements IDataStorage  {
 
     @Override
     public void remove(int value) {
-
+        super.remove(value);
     }
-
 
     private Node insert(Node h, int value, int ht) {
         int j;
@@ -170,12 +132,12 @@ public class BTree implements IDataStorage  {
         // internal node
         else {
             for (j = 0; j < h.m; j++) {
-                if ((j+1 == h.m) || value < h.children[j+1].value) {
-                    if (j+1 != h.m) {
+                if ((j + 1 == h.m) || value < h.children[j + 1].value) {
+                    if (j + 1 != h.m) {
                         counterSet.inc(ICounterSet.OperationType.COMPARE);
                     }
-                    Node u = insert(h.children[j++].next, value, ht-1);
-                    if (u == null){
+                    Node u = insert(h.children[j++].next, value, ht - 1);
+                    if (u == null) {
                         return null;
                     }
                     counterSet.inc(ICounterSet.OperationType.ASSIGN);
@@ -186,9 +148,7 @@ public class BTree implements IDataStorage  {
             }
         }
 
-        for (int i = h.m; i > j; i--) {
-            h.children[i] = h.children[i-1];
-        }
+        System.arraycopy(h.children, j, h.children, j + 1, h.m - j);
 
         h.children[j] = t;
         h.m++;
@@ -201,11 +161,32 @@ public class BTree implements IDataStorage  {
 
     // split node in half
     private Node split(Node h) {
-        Node t = new Node(childrenCount /2, childrenCount);
-        h.m = childrenCount /2;
-        for (int j = 0; j < childrenCount /2; j++)
-            t.children[j] = h.children[childrenCount /2+j];
+        Node t = new Node(childrenCount / 2, childrenCount);
+        h.m = childrenCount / 2;
+        System.arraycopy(h.children, childrenCount / 2, t.children, 0, childrenCount / 2);
         return t;
+    }
+
+    private static final class Node {
+        private final Entry[] children;// = new Entry[MAX_CHILDREN_COUNT];   // the array of children
+        private int m;                             // number of children
+
+        private Node(int k, int maxChildren) {
+            children = new Entry[maxChildren];
+            m = k;
+        }             // create a node with k children
+    }
+
+    // internal nodes: only use key and next
+    // external nodes: only use key and value
+    private static class Entry {
+        private int value;
+        private Node next;     // helper field to iterate over array entries
+
+        public Entry(int value, Node next) {
+            this.value = value;
+            this.next = next;
+        }
     }
 
 

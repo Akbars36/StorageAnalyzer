@@ -32,7 +32,7 @@ public class SourceGenerator {
                 commandSource = new BlockCommandSource(elem, aliases, params);
                 break;
             case "sequence":
-                commandSource = new SequenceCommandSource(elem, params);
+                commandSource = new SequenceCommandSource(elem, aliases, params);
                 break;
             default:
                 commandSource = null;

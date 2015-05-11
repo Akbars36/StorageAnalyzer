@@ -15,8 +15,12 @@ public interface ICounterSet {
 
     int get(OperationType operation);
 
+    void clear();
+
     enum OperationType {
         COMPARE,
         ASSIGN
     }
+
+
 }

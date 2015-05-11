@@ -8,7 +8,7 @@ import com.vsu.amm.data.stream.IDataStream;
  */
 public class SelectCommand implements ICommand {
 
-    int value;
+    private int value;
 
     public SelectCommand(int value) {
         this.value = value;

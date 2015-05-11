@@ -3,7 +3,6 @@ package com.vsu.amm;
 import com.vsu.amm.command.DataSetPlayer;
 import com.vsu.amm.data.stream.LogFileWriter;
 import com.vsu.amm.load.XMLLoader;
-
 import org.apache.log4j.Logger;
 
 /**
@@ -13,7 +12,7 @@ import org.apache.log4j.Logger;
  * Time: 20:30
  * To change this template use File | Settings | File Templates.
  */
-public class Main {
+class Main {
     private static final Logger log = Logger.getLogger(Main.class);
 
     public static void main(String[] args) {
@@ -24,7 +23,7 @@ public class Main {
         XMLLoader loader = new XMLLoader();
         loader.ParseXML(fileName);
         LogFileWriter logFileWriter = new LogFileWriter("testmotherfucker.txt");
-        DataSetPlayer dsp = new DataSetPlayer(loader.storages,logFileWriter);
+        DataSetPlayer dsp = new DataSetPlayer(loader.storages, logFileWriter);
         dsp.play(loader.commands.get(0));
         //LogFileWriter logFileWriter = new LogFileWriter(Constants.DEFAULT_OUTPUT_FILE_NAME);
         //processLoadXML.processXMLNew(fileName, logFileWriter);

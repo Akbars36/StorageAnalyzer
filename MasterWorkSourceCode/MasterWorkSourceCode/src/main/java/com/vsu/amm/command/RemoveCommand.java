@@ -7,7 +7,7 @@ import com.vsu.amm.data.stream.IDataStream;
  * Created by VLAD on 13.05.14.
  */
 public class RemoveCommand implements ICommand {
-    int value;
+    private int value;
 
     public RemoveCommand(int value) {
         this.value = value;

@@ -14,10 +14,9 @@ import java.util.Map;
 
 public class DataStreamImpl implements IDataStream {
     private static final Logger log = Logger.getLogger(DataStreamImpl.class);
+    private final IDataStream dataStream;
+    private final List<IDataStorage> dataStorages;
     private boolean first = true;
-    private IDataStream dataStream;
-    private List<IDataStorage> dataStorages;
-
     private PrintWriter out = null;
 
     public DataStreamImpl(String filename, IDataStream dataStream, List<IDataStorage> dataStorages) {
@@ -34,7 +33,7 @@ public class DataStreamImpl implements IDataStream {
 
     @Override
     public void label(String label) {
-        if (dataStream != null){
+        if (dataStream != null) {
             dataStream.label(label);
         }
 
@@ -42,49 +41,40 @@ public class DataStreamImpl implements IDataStream {
 
     @Override
     public void get(int value) {
-        if (dataStream != null){
+        if (dataStream != null) {
             dataStream.get(value);
         }
-        for (IDataStorage dataStorage : dataStorages)
-            if (dataStorage != null){
-                dataStorage.get(value);
-            }
+        dataStorages.stream().filter(dataStorage -> dataStorage != null).forEach(dataStorage -> dataStorage.get(value));
     }
 
     @Override
     public void set(int value) {
-        if (dataStream != null){
+        if (dataStream != null) {
             dataStream.set(value);
         }
-        for (IDataStorage dataStorage : dataStorages)
-            if (dataStorage != null){
-                dataStorage.set(value);
-            }
+        dataStorages.stream().filter(dataStorage -> dataStorage != null).forEach(dataStorage -> dataStorage.set(value));
     }
 
     @Override
     public void remove(int value) {
-        if (dataStream != null){
+        if (dataStream != null) {
             dataStream.remove(value);
         }
-        for (IDataStorage dataStorage : dataStorages)
-            if (dataStorage != null){
-                dataStorage.remove(value);
-            }
+        dataStorages.stream().filter(dataStorage -> dataStorage != null).forEach(dataStorage -> dataStorage.remove(value));
     }
 
-    public void flush(String params){
+    public void flush(String params) {
         Map<String, String> paramsMap = new HashMap<>();
         Map<String, String> storageParams;
         String[] paramsMas = params.split(";");
         String[] temp;
-        for(String param : paramsMas){
+        for (String param : paramsMas) {
             temp = param.split("=");
             paramsMap.put(temp[0], temp[1]);
         }
         StringBuilder builder = new StringBuilder();
-        if (first){
-            for(String key : paramsMap.keySet()){
+        if (first) {
+            for (String key : paramsMap.keySet()) {
                 builder.append("Param:").append(key).append(",");
             }
             builder.append("Storage").append(",");
@@ -96,45 +86,39 @@ public class DataStreamImpl implements IDataStream {
             first = false;
         }
         IDataStorage bestDataStorage = null;
-        int countersBest = 0;
-        int countersCurr = 0;
-        for (IDataStorage dataStorage :dataStorages){
-            if (bestDataStorage == null){
+        int countersBest;
+        int countersCurr;
+        for (IDataStorage dataStorage : dataStorages) {
+            if (bestDataStorage == null) {
                 bestDataStorage = dataStorage;
             } else {
                 countersBest = bestDataStorage.getCounterSet().get(ICounterSet.OperationType.COMPARE)
                         + bestDataStorage.getCounterSet().get(ICounterSet.OperationType.ASSIGN);
                 countersCurr = dataStorage.getCounterSet().get(ICounterSet.OperationType.COMPARE)
                         + dataStorage.getCounterSet().get(ICounterSet.OperationType.ASSIGN);
-                if (countersCurr < countersBest){
+                if (countersCurr < countersBest) {
                     bestDataStorage = dataStorage;
                 }
             }
         }
-        for(String key : paramsMap.keySet()){
+        for (String key : paramsMap.keySet()) {
             builder.append(paramsMap.get(key)).append(",");
         }
         builder.append(bestDataStorage.getClass().getCanonicalName()).append(",");
-        storageParams = bestDataStorage.getStorageParams();
-        if (storageParams != null){
-            for (String sParam : storageParams.keySet()){
-                builder.append(sParam).append(";").append(storageParams.get(sParam));
-            }
-        }
         builder.append(",");
         builder.append(bestDataStorage.getCounterSet().get(ICounterSet.OperationType.COMPARE)).append(",")
                 .append(bestDataStorage.getCounterSet().get(ICounterSet.OperationType.ASSIGN))
                 .append("\r\n");
 
         out.println(builder.toString());
-        for (IDataStorage dataStorage : dataStorages){
+        for (IDataStorage dataStorage : dataStorages) {
             dataStorage.clear();
             dataStorage.setCounterSet(new SimpleCounterSet());
         }
     }
 
-    public void close(){
-        if (out != null){
+    public void close() {
+        if (out != null) {
             out.flush();
             out.close();
         }

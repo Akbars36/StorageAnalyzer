@@ -11,17 +11,16 @@ import java.util.Hashtable;
  */
 public class SimpleCounterSet implements ICounterSet {
 
-    Hashtable<OperationType, Integer> counterSet;
+    private final Hashtable<OperationType, Integer> counterSet;
 
     public SimpleCounterSet() {
         counterSet = new Hashtable<>();
-        counterSet.put(OperationType.COMPARE, 0);
-        counterSet.put(OperationType.ASSIGN, 0);
+        for (OperationType operation : OperationType.values())
+            counterSet.put(operation, 0);
     }
 
     @Override
     public void inc(OperationType counterName) {
-        //To change body of implemented methods use File | Settings | File Templates.
         int value;
         if (counterSet.containsKey(counterName)) {
             value = counterSet.get(counterName);
@@ -31,7 +30,6 @@ public class SimpleCounterSet implements ICounterSet {
 
     @Override
     public void inc(OperationType counterName, int delta) {
-        //To change body of implemented methods use File | Settings | File Templates.
         int value;
         if (counterSet.containsKey(counterName)) {
             value = counterSet.get(counterName);
@@ -45,5 +43,13 @@ public class SimpleCounterSet implements ICounterSet {
             return counterSet.get(counterName);
         }
         return -1;  //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    @Override
+    public void clear() {
+        if (counterSet == null)
+            return;
+        for (OperationType operation : counterSet.keySet())
+            counterSet.put(operation, 0);
     }
 }

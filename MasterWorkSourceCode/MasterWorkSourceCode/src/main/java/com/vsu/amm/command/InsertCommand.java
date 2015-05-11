@@ -8,7 +8,7 @@ import com.vsu.amm.data.stream.IDataStream;
  */
 public class InsertCommand implements ICommand {
 
-    int value;
+    private int value;
 
     public InsertCommand(int value) {
         this.value = value;

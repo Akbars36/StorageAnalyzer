@@ -44,7 +44,7 @@ public class RemoveCommandSource extends SimpleCommandSource {
 
         if (reuseValues && valueSet.hasStoredValues())
             for (int i = 0; i < count; i++)
-                commands.add(new RemoveCommand(valueSet.reuseRandom().intValue()));
+            	commands.add(new RemoveCommand(valueSet.reuseRandom().intValue()));
         else if (!Utils.isNullOrEmpty(alias))
             for (int i = 0; i < count; i++)
                 commands.add(new RemoveCommand(valueSet.generateRandomAndStore()));

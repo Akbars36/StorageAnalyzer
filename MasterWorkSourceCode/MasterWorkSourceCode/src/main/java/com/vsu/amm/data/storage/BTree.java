@@ -11,13 +11,10 @@ public class BTree extends AbstractStorage {
     private static final String CHILDREN_PAMAN_NAME = "children_count";
     private static final int MAX_CHILDREN_COUNT = 4;    // max children per B-tree node = MAX_CHILDREN_COUNT-1
 
-
-    private ICounterSet counterSet;
-
     private Node root;
     private int treeHeight;
     private int elementsCount;
-    private int childrenCount;
+    private int childrenCount = MAX_CHILDREN_COUNT;
 
 
     // constructor
@@ -53,6 +50,9 @@ public class BTree extends AbstractStorage {
     public void clear() {
         super.clear();
         root = new Node(0, childrenCount);
+        elementsCount = 0;
+        treeHeight = 0;
+        
     }
 
     // return number of key-value pairs in the B-tree
@@ -140,7 +140,6 @@ public class BTree extends AbstractStorage {
                     if (u == null) {
                         return null;
                     }
-                    counterSet.inc(ICounterSet.OperationType.ASSIGN);
                     t.value = u.children[0].value;
                     t.next = u;
                     break;
@@ -149,7 +148,7 @@ public class BTree extends AbstractStorage {
         }
 
         System.arraycopy(h.children, j, h.children, j + 1, h.m - j);
-
+        counterSet.inc(ICounterSet.OperationType.ASSIGN, h.m - j);
         h.children[j] = t;
         h.m++;
         if (h.m < childrenCount) {

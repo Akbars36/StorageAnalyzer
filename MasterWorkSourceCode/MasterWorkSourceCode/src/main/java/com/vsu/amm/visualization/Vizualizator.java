@@ -6,6 +6,8 @@ import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -33,19 +35,20 @@ public class Vizualizator {
 		Integer min = null;
 		Integer max = null;
 		for (int x = 0; x < size; x++) {
+			Long now = Calendar.getInstance().getTimeInMillis();
 			for (int y = 0; y < size; y++) {
 				if (DrawUtils.pointInTriangle(0, 0, size/2, (float) (size*Math.sqrt(3.0) / 2.0f), size, 0, x,
 						 size-y)) {
 					Point2D p = new Point2D.Double(x, size-y);
 					Point3DInIRSCoords res = transl.translate(p);
-					System.out.print(x+"     "+(size-y)+"       "+res.getInsertCoord()+"   "+ res.getSelectCoord()+"   "+ res.getRemoveCoord());
+					//System.out.print(x+"     "+(size-y)+"       "+res.getInsertCoord()+"   "+ res.getSelectCoord()+"   "+ res.getRemoveCoord());
 					List<Integer> result = DataGenerator.getContersForStorages(
 							storages, res.getInsertCoord(),
 							res.getSelectCoord(), res.getRemoveCoord());
 					for(int i=0;i<result.size();i++){
-						System.out.print("    "+result.get(i));
+						//System.out.print("    "+result.get(i));
 					};
-					System.out.println();
+					//System.out.println();
 					if (storages.size() == 1) {
 						Integer cur = storages.get(0).getCounterSet()
 								.get(OperationType.ASSIGN)
@@ -63,6 +66,8 @@ public class Vizualizator {
 					coeffs.put(p, result);
 				}
 			}
+			double delta = (Calendar.getInstance().getTimeInMillis() - now) / 1000.0;
+			System.out.println("x= " + x + "; delta= " + delta + "s");
 		}
 		System.out.println(min+"        "+max);
 		ImageData data=new ImageData(min, max, coeffs);

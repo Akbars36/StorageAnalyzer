@@ -32,6 +32,9 @@ public class SimpleList extends AbstractStorage {
 
     @Override
     public void clear() {
+    	if (root == null)
+    		return;
+    	
         Node tmp = root.next;
         Node next;
         while(tmp != null){

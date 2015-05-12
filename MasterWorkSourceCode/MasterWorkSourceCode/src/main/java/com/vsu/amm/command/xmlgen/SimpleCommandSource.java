@@ -85,4 +85,36 @@ public abstract class SimpleCommandSource implements ICommandSource {
             valueSet.setParams(parameters);
         }
     }
+
+    public List<ICommand> getCommands() {
+        return commands;
+    }
+
+    public void setCommands(List<ICommand> commands) {
+        this.commands = commands;
+    }
+
+    public int getCurrentCommand() {
+        return currentCommand;
+    }
+
+    public void setCurrentCommand(int currentCommand) {
+        this.currentCommand = currentCommand;
+    }
+
+    public BaseValueSet getValueSet() {
+        return valueSet;
+    }
+
+    public void setValueSet(BaseValueSet valueSet) {
+        this.valueSet = valueSet;
+    }
+
+    public String getLabel() {
+        return label;
+    }
+
+    public void setLabel(String label) {
+        this.label = label;
+    }
 }

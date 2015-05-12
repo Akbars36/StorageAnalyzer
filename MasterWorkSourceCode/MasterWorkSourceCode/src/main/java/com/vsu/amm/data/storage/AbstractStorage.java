@@ -31,7 +31,8 @@ public abstract class AbstractStorage implements IDataStorage {
 
     @Override
     public void clear() {
-        cache.clear();
+        if (cache != null)
+            cache.clear();
         counterSet.clear();
     }
 

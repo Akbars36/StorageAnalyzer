@@ -13,6 +13,10 @@ public class MRUCache extends AbstractCache {
         super(sizeParam, insertRateParam, params);
     }
 
+    public MRUCache() {
+        super();
+    }
+
     @Override
     protected void adjustCacheSize() {
         int countToRemove = cache.size() - size;

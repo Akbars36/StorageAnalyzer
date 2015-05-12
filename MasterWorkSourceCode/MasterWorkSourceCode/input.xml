@@ -7,8 +7,8 @@
     </sequence>
   </data>
   <storages>
-    <storage class="com.vsu.amm.data.storage.CacheArray" >
-    	 <param name="cache_size" value="10" />
+      <storage class="com.vsu.amm.data.storage.SimpleList">
+          <cache class="com.vsu.amm.data.cache.LFUCache" size="3" rate="70"/>
     </storage>
     <storage class="com.vsu.amm.data.storage.SortedList" />
   </storages>

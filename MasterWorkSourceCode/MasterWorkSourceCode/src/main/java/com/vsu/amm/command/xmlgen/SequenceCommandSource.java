@@ -1,16 +1,13 @@
 package com.vsu.amm.command.xmlgen;
 
-import com.vsu.amm.Utils;
 import com.vsu.amm.command.ICommand;
 import com.vsu.amm.command.ICommandSource;
-import com.vsu.amm.data.stream.IDataStream;
 import org.jdom2.Element;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
-public class SequenceCommandSource implements ICommandSource {
+public class SequenceCommandSource extends StructuredCommandSource {
 
     public SequenceCommandSource(Element elem, AliasSet aliasSet, Map<String, Integer> params) {
         if (elem == null)
@@ -23,6 +20,15 @@ public class SequenceCommandSource implements ICommandSource {
             aliasSet = new AliasSet();
 
         parseParameters(elem, aliasSet, params);
+    }
+
+    public SequenceCommandSource(Integer insertCount, Integer selectCount,
+                                 Integer removeCount) {
+        commands = new ArrayList<>(3);
+        AliasSet aliasSet = new AliasSet();
+        commands.add(new InsertCommandSource(insertCount, aliasSet));
+        commands.add(new SelectCommandSource(selectCount, aliasSet));
+        commands.add(new RemoveCommandSource(removeCount, aliasSet));
     }
 
     @Override

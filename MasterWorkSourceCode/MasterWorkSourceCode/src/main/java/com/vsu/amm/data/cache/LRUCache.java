@@ -13,6 +13,10 @@ public class LRUCache extends AbstractCache {
         super(sizeParam, insertRateParam, params);
     }
 
+    public LRUCache() {
+        super();
+    }
+
     @Override
     protected void adjustCacheSize() {
         int countToRemove = cache.size() - size;

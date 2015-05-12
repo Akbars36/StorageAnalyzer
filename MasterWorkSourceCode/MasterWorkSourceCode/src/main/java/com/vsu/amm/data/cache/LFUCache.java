@@ -13,6 +13,10 @@ public class LFUCache extends AbstractCache {
         super(sizeParam, insertRateParam, params);
     }
 
+    public LFUCache() {
+        super();
+    }
+
     @Override
     protected void adjustCacheSize() {
         int countToRemove = cache.size() - size;

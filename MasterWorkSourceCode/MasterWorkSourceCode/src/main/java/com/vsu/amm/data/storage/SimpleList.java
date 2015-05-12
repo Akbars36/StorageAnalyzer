@@ -2,6 +2,8 @@ package com.vsu.amm.data.storage;
 
 import com.vsu.amm.stat.ICounterSet;
 
+import java.util.Map;
+
 /**
  * Created by VLAD on 26.03.14.
  */
@@ -14,22 +16,17 @@ public class SimpleList extends AbstractStorage {
     }
 
     @Override
-    public void setCounterSet(ICounterSet counterSet) {
-        this.counterSet = counterSet;
-    }
-
-    @Override
     public ICounterSet getCounterSet() {
         return counterSet;
     }
 
     @Override
-    public Map<String, String> getStorageParams() {
-        return null;
+    public void setCounterSet(ICounterSet counterSet) {
+        this.counterSet = counterSet;
     }
 
     @Override
-    public void setStorageParams(Map<String, String> params) {
+    public void setStorageParams(Map<String, Integer> params) {
 
     }
 

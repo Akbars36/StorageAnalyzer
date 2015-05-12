@@ -14,30 +14,50 @@ public class SimpleList extends AbstractStorage {
     }
 
     @Override
+    public void setCounterSet(ICounterSet counterSet) {
+        this.counterSet = counterSet;
+    }
+
+    @Override
+    public ICounterSet getCounterSet() {
+        return counterSet;
+    }
+
+    @Override
+    public Map<String, String> getStorageParams() {
+        return null;
+    }
+
+    @Override
+    public void setStorageParams(Map<String, String> params) {
+
+    }
+
+    @Override
     public void clear() {
-        super.clear();
         Node tmp = root.next;
         Node next;
-        while (tmp != null) {
+        while(tmp != null){
             next = tmp.next;
             tmp = next;
         }
         root = null;
 
-    }
+	}
 
-    @Override
-    public void get(int value) {
-        Node tmp = root;
-        boolean found = false;
-        while ((tmp != null) && !found) {
-            counterSet.inc(ICounterSet.OperationType.COMPARE);
-            if (tmp.value == value) {
-                found = true;
-            }
-            tmp = tmp.next;
-        }
-    }
+	@Override
+	public void get(int value) {
+		Node tmp = root;
+		boolean found = false;
+		while ((tmp != null) && !found) {
+			counterSet.inc(ICounterSet.OperationType.COMPARE);
+			if (tmp.value == value) {
+				found = true;
+			}
+			tmp = tmp.next;
+		}
+	}
+
 
     @Override
     public void set(int value) {

@@ -1,10 +1,15 @@
 package com.vsu.amm.command.xmlgen;
 
+import com.vsu.amm.Constants;
 import com.vsu.amm.Utils;
 import com.vsu.amm.command.SelectCommand;
+import com.vsu.amm.data.stream.IDataStream;
+import com.vsu.amm.command.ICommand;
+import com.vsu.amm.command.ICommandSource;
 import org.jdom2.Element;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 public class SelectCommandSource extends SimpleCommandSource {
@@ -52,4 +57,70 @@ public class SelectCommandSource extends SimpleCommandSource {
 
         label = elem.getAttributeValue("label");
     }
+	public SelectCommandSource(Integer selectCount, AliasSet aliasSet) {
+		valueSet = new StandardRandomValueSet(0, Constants.DEFAULT_MAX_VALUE);
+		valueSet = aliasSet.getAlias(Constants.DEFAULT_ALIAS_NAME);
+		if (valueSet.hasStoredValues()) {
+			commands = new ArrayList<>(selectCount);
+			for (int i = 0; i < selectCount; i++)
+				commands.add(new SelectCommand(valueSet.reuseRandom()));
+		}
+	}
+
+	private Integer getAttributeValue(Element element, String attributeName,
+			Map<String, Integer> params) {
+		String strAttribute = element.getAttributeValue(attributeName);
+		if (strAttribute == null)
+			return null;
+
+		if (strAttribute.startsWith("%") && strAttribute.endsWith("%")) {
+			strAttribute = strAttribute.substring(1, strAttribute.length() - 1);
+			return params != null ? params.get(strAttribute) : null;
+		}
+
+		Integer attrValue = null;
+
+		try {
+			attrValue = Integer.parseInt(strAttribute);
+		} catch (Exception ex) {
+			System.out.println("Cannot parse parameter: " + attributeName);
+		}
+
+		return attrValue;
+	}
+
+	@Override
+	public void restart() {
+		currentCommand = 0;
+	}
+
+	@Override
+	public ICommand next() {
+		if (commands == null)
+			return null;
+
+		if (commands.size() <= currentCommand)
+			return null;
+
+		return commands.get(currentCommand++);
+	}
+
+	@Override
+	public void printToStream(IDataStream stream) {
+		if (commands == null)
+			return;
+
+		if (stream == null)
+			return;
+
+		if (label != null)
+			stream.label(label);
+
+		commands.forEach(iCommand -> iCommand.printToStream(stream));
+	}
+
+	public List<ICommand> getCommands() {
+		return commands;
+	}
+    
 }

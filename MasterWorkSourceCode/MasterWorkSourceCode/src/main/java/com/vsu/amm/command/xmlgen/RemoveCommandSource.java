@@ -1,7 +1,11 @@
 package com.vsu.amm.command.xmlgen;
 
+import com.vsu.amm.Constants;
 import com.vsu.amm.Utils;
 import com.vsu.amm.command.RemoveCommand;
+import com.vsu.amm.command.SelectCommand;
+import com.vsu.amm.data.stream.IDataStream;
+
 import org.jdom2.Element;
 
 import java.util.ArrayList;
@@ -50,5 +54,16 @@ public class RemoveCommandSource extends SimpleCommandSource {
             }
 
         label = elem.getAttributeValue("label");
+    }
+
+    public RemoveCommandSource(Integer removeCount, AliasSet aliasSet) {
+        valueSet = new StandardRandomValueSet(0, Constants.DEFAULT_MAX_VALUE);
+        valueSet = aliasSet.getAlias(Constants.DEFAULT_ALIAS_NAME);
+        if (valueSet.hasStoredValues()) {
+            commands = new ArrayList<>(removeCount);
+            for (int i = 0; i < removeCount; i++)
+                commands.add(new RemoveCommand(valueSet.reuseRandom()
+                        .intValue()));
+        }
     }
 }

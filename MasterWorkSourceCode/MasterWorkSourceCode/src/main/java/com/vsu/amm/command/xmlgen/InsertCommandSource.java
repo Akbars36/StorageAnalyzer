@@ -1,5 +1,6 @@
 package com.vsu.amm.command.xmlgen;
 
+import com.vsu.amm.Constants;
 import com.vsu.amm.Utils;
 import com.vsu.amm.command.InsertCommand;
 import org.jdom2.Element;
@@ -51,5 +52,13 @@ public class InsertCommandSource extends SimpleCommandSource {
             }
 
         label = elem.getAttributeValue("label");
+    }
+
+    public InsertCommandSource(Integer insertCount, AliasSet aliasSet) {
+        valueSet = new StandardRandomValueSet(0, Constants.DEFAULT_MAX_VALUE);
+        aliasSet.putAlias(Constants.DEFAULT_ALIAS_NAME, valueSet);
+        commands = new ArrayList<>(insertCount);
+        for (int i = 0; i < insertCount; i++)
+            commands.add(new InsertCommand(valueSet.generateRandomAndStore()));
     }
 }

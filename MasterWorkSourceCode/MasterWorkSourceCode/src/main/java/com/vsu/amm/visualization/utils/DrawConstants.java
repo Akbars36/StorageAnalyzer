@@ -1,0 +1,9 @@
+package com.vsu.amm.visualization.utils;
+
+import java.awt.Color;
+import java.util.List;
+
+public class DrawConstants {
+	public static final Color[] COLORS={Color.RED,Color.BLUE};
+	public static final int OFFSET=50;
+}

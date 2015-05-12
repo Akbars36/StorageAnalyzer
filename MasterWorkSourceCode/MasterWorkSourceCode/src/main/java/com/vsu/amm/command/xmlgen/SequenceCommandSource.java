@@ -1,17 +1,21 @@
 package com.vsu.amm.command.xmlgen;
 
+import com.vsu.amm.Utils;
 import com.vsu.amm.command.ICommand;
 import com.vsu.amm.command.ICommandSource;
+import com.vsu.amm.data.stream.IDataStream;
 import org.jdom2.Element;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
-public class SequenceCommandSource extends StructuredCommandSource {
+public class SequenceCommandSource implements ICommandSource {
 
     public SequenceCommandSource(Element elem, AliasSet aliasSet, Map<String, Integer> params) {
         if (elem == null)
             return;
-
+        
         if (!"sequence".equals(elem.getName()))
             return;
 

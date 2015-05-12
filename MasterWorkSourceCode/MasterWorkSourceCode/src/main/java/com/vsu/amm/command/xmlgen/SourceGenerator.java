@@ -10,13 +10,14 @@ import java.util.Map;
  */
 public class SourceGenerator {
 
-    public static ICommandSource create(Element elem, Map<String, Integer> params) {
-        if (elem == null)
-            return null;
+	public static ICommandSource create(Element elem,
+			Map<String, Integer> params) {
+		if (elem == null)
+			return null;
 
-        AliasSet aliases = new AliasSet();
+		AliasSet aliases = new AliasSet();
 
-        ICommandSource commandSource;
+		ICommandSource commandSource;
 
         switch (elem.getName().toLowerCase()) {
             case "insert":
@@ -38,8 +39,15 @@ public class SourceGenerator {
                 commandSource = null;
         }
 
-        return commandSource;
-    }
+		return commandSource;
+	}
 
+	public static ICommandSource createInsertSelectRemoveSource(
+			Integer insertCount, Integer selectCount, Integer removeCount) {
+		SequenceCommandSource commandSource = new SequenceCommandSource(
+				insertCount, selectCount, removeCount);
+
+		return commandSource;
+	}
 
 }

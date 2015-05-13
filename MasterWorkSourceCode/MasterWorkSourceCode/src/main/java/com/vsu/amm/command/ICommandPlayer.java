@@ -1,8 +1,8 @@
 package com.vsu.amm.command;
 
 /**
- * Последовательно выполняет команды источника
+ * РџРѕСЃР»РµРґРѕРІР°С‚РµР»СЊРЅРѕ РІС‹РїРѕР»РЅСЏРµС‚ РєРѕРјР°РЅРґС‹ РёСЃС‚РѕС‡РЅРёРєР°
  */
 interface ICommandPlayer {
-    void play(ICommandSource commandSource);
+	void play(ICommandSource commandSource);
 }

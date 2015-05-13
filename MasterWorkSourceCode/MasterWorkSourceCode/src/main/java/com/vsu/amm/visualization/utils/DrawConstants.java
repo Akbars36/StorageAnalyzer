@@ -1,9 +1,26 @@
 package com.vsu.amm.visualization.utils;
 
 import java.awt.Color;
-import java.util.List;
 
+/**
+ * Константы используемые для отрисовки изображения
+ * 
+ * @author Potapov Danila
+ *
+ */
 public class DrawConstants {
-	public static final Color[] COLORS={Color.RED,Color.BLUE, Color.GREEN, Color.YELLOW};
-	public static final int OFFSET=50;
+	/**
+	 * Используемые цвета
+	 */
+	public static final Color[] COLORS = { Color.RED, Color.BLUE, Color.GREEN,
+			Color.YELLOW };
+	/**
+	 * Смещение для отображения координатных осей
+	 */
+	public static final int OFFSET = 50;
+
+	/**
+	 * Расширение для изображения
+	 */
+	public static final String IMAGE_EXTENSION = "png";
 }

@@ -11,8 +11,6 @@ public class SortedArray extends AbstractStorage {
 
     private final ArrayList<Integer> array;
 
-    private ICounterSet counterSet;
-
     public SortedArray() {
         array = new ArrayList<>();
     }

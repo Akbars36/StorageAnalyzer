@@ -6,7 +6,7 @@ import org.jdom2.Element;
 import java.util.Map;
 
 /**
- * фабрика
+ * С„Р°Р±СЂРёРєР°
  */
 public class SourceGenerator {
 

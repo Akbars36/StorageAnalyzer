@@ -1,92 +1,93 @@
 package com.vsu.amm.visualization.utils;
 
-import java.awt.geom.Point2D;
-
-import com.vsu.amm.visualization.coordinate.CoordinanateTranslator;
-import com.vsu.amm.visualization.coordinate.Point3DInIRSCoords;
-
+/**
+ * Вспомогательный класс для работы с матрицами
+ * 
+ * @author Potapov Danila
+ *
+ */
 public class MatrixUtils {
 
 	/**
-	 * Matrix multiplication method.
+	 * Метод для перемножения матриц
 	 * 
-	 * @param m1
-	 *            Multiplicand
-	 * @param m2
-	 *            Multiplier
-	 * @return Product
+	 * @param firstMatrix
+	 *            матрица, которую умножают
+	 * 
+	 * @param secondMatrix
+	 *            матрица, на которую умножают
+	 * 
+	 * @return результат умножения матриц или null, если размерности матриц не
+	 *         совпадают
 	 */
-	public static double[][] multiplyByMatrix(double[][] m1, double[][] m2) {
-		int m1ColLength = m1[0].length; // m1 columns length
-		int m2RowLength = m2.length; // m2 rows length
+	public static double[][] multiplyByMatrix(double[][] firstMatrix,
+			double[][] secondMatrix) {
+		int m1ColLength = firstMatrix[0].length; // m1 columns length
+		int m2RowLength = secondMatrix.length; // m2 rows length
 		if (m1ColLength != m2RowLength)
 			return null; // matrix multiplication is not possible
-		int mRRowLength = m1.length; // m result rows length
-		int mRColLength = m2[0].length; // m result columns length
+		int mRRowLength = firstMatrix.length; // m result rows length
+		int mRColLength = secondMatrix[0].length; // m result columns length
 		double[][] mResult = new double[mRRowLength][mRColLength];
 		for (int i = 0; i < mRRowLength; i++) { // rows from m1
 			for (int j = 0; j < mRColLength; j++) { // columns from m2
 				for (int k = 0; k < m1ColLength; k++) { // columns from m1
-					mResult[i][j] += m1[i][k] * m2[k][j];
+					mResult[i][j] += firstMatrix[i][k] * secondMatrix[k][j];
 				}
 			}
 		}
 		return mResult;
 	}
 
-	public static double[][] rotateOnAngleByZ(double alpha) // radians
-	{
+	/**
+	 * Метод для получения матрицы поворота на угол alpha по оси Z
+	 * 
+	 * @param alpha
+	 *            угол, на который производится поворот
+	 * @return матрицу поворота
+	 */
+	public static double[][] rotateOnAngleByZ(double alpha) {
 		double cosA = (double) Math.cos(Math.toRadians(alpha));
 		double sinA = (double) Math.sin(Math.toRadians(alpha));
 
-		double[][] matr = { 
-				{ cosA, -sinA, 0.0f, 0.0f }, 
-				{ sinA, cosA, 0.0f, 0.0f },
-				{ 0.0f, 0.0f, 1.0f, 0.0f },
+		double[][] matr = { { cosA, -sinA, 0.0f, 0.0f },
+				{ sinA, cosA, 0.0f, 0.0f }, { 0.0f, 0.0f, 1.0f, 0.0f },
 				{ 0.0f, 0.0f, 0.0f, 1.0f } };
 		return matr;
 	}
 
+	/**
+	 * Метод для получения матрицы поворота на угол alpha по оси Y
+	 * 
+	 * @param alpha
+	 *            угол, на который производится поворот
+	 * @return матрицу поворота
+	 */
 	public static double[][] rotateOnAngleByY(double alpha) // radians
 	{
 		double cosA = (double) Math.cos(Math.toRadians(alpha));
 		double sinA = (double) Math.sin(Math.toRadians(alpha));
-		double[][] matr = { 
-				{ cosA, 0.0f, sinA, 0.0f }, 
-				{ 0.0f, 1.0f, 0.0f , 0.0f},
-				{ -sinA, 0.0f, cosA , 0.0f},
+		double[][] matr = { { cosA, 0.0f, sinA, 0.0f },
+				{ 0.0f, 1.0f, 0.0f, 0.0f }, { -sinA, 0.0f, cosA, 0.0f },
 				{ 0.0f, 0.0f, 0.0f, 1.0f } };
 		return matr;
 	}
-	
-	public static double[][] moveOnXYZ(double x,double y,double z) // radians
+
+	/**
+	 * Метод для получения матрицы сдвига системы координат на (x,y,z)
+	 * 
+	 * @param x
+	 *            сдвиг по оси Х
+	 * @param y
+	 *            сдвиг по оси У
+	 * @param z
+	 *            сдвиг по оси Z
+	 * @return матрицу сдвига
+	 */
+	public static double[][] moveOnXYZ(double x, double y, double z) // radians
 	{
-		double[][] matr = new double[][] { 
-				{ 1, 0, 0,0 }, 
-				{ 0, 1, 0,0 }, 
-				{ 0, 0, 1,0 },
-				{ x, y, z, 1 } };
+		double[][] matr = new double[][] { { 1, 0, 0, 0 }, { 0, 1, 0, 0 },
+				{ 0, 0, 1, 0 }, { x, y, z, 1 } };
 		return matr;
-	}
-
-	public static String toString(double[][] m) {
-		String result = "";
-		for (int i = 0; i < m.length; i++) {
-			for (int j = 0; j < m[i].length; j++) {
-				result += String.format("%11.3f", m[i][j]);
-			}
-			result += "\n";
-		}
-		return result;
-	}
-	
-	
-
-	public static void main(String[] args) {
-		// #1
-		CoordinanateTranslator tr=new CoordinanateTranslator(10);
-		Point2D p=new Point2D.Double(7,0);
-		Point3DInIRSCoords r=tr.translate(p);
-		 System.out.println(r.getInsertCoord()+"    "+r.getRemoveCoord()+"    "+r.getSelectCoord());
 	}
 }

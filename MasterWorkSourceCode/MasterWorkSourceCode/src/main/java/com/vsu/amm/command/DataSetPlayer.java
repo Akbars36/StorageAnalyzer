@@ -44,9 +44,11 @@ public class DataSetPlayer implements ICommandPlayer {
            
             cmd = commandSource.next();
         }
-        commandSource.printToStream(stream);
-        if (stream != null)
+        if (stream != null) {
+            commandSource.printToStream(stream);
             stream.close();
+        }
+
 
         
     }

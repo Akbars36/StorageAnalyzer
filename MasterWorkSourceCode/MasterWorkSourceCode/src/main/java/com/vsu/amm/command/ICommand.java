@@ -8,4 +8,7 @@ public interface ICommand {
     void execute(IDataContainer dataSet);
 
     void printToStream(IDataStream stream);
+
+    int getValue();
+    void setValue(int value);
 }

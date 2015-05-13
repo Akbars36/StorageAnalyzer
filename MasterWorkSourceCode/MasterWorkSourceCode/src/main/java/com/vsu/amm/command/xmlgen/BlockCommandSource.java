@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.stream.Collectors;
 
 public class BlockCommandSource extends StructuredCommandSource {
 
@@ -72,4 +73,18 @@ public class BlockCommandSource extends StructuredCommandSource {
         return null;
     }
 
+    public BlockCommandSource(BlockCommandSource source) {
+        if (source == null)
+            return;
+        this.commandOrder = source.commandOrder;
+        if (source.commands == null)
+            return;
+        commands = new ArrayList<>(source.commands.size());
+        commands.addAll(source.commands.stream().map(ICommandSource::copy).collect(Collectors.toList()));
+    }
+
+    @Override
+    public ICommandSource copy() {
+        return new BlockCommandSource(this);
+    }
 }

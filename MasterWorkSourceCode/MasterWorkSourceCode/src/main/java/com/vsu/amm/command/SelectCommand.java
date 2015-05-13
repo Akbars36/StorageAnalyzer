@@ -6,9 +6,7 @@ import com.vsu.amm.data.stream.IDataStream;
 /**
  * Created by VLAD on 13.05.14.
  */
-public class SelectCommand implements ICommand {
-
-    private int value;
+public class SelectCommand extends AbstractCommand{
 
     public SelectCommand(int value) {
         this.value = value;
@@ -29,13 +27,5 @@ public class SelectCommand implements ICommand {
         }
 
         stream.get(value);
-    }
-
-    public int getValue() {
-        return value;
-    }
-
-    public void setValue(int newValue) {
-        value = newValue;
     }
 }

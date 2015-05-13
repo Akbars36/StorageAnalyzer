@@ -2,11 +2,14 @@ package com.vsu.amm.command.xmlgen;
 
 import com.vsu.amm.Constants;
 import com.vsu.amm.Utils;
+import com.vsu.amm.command.ICommandSource;
 import com.vsu.amm.command.InsertCommand;
+import com.vsu.amm.command.SelectCommand;
 import org.jdom2.Element;
 
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class InsertCommandSource extends SimpleCommandSource {
 
@@ -60,5 +63,21 @@ public class InsertCommandSource extends SimpleCommandSource {
         commands = new ArrayList<>(insertCount);
         for (int i = 0; i < insertCount; i++)
             commands.add(new InsertCommand(valueSet.generateRandomAndStore()));
+    }
+
+    public InsertCommandSource(InsertCommandSource source) {
+        if (source == null)
+            return;
+
+        this.label = source.label;
+        if (source.commands == null)
+            return;
+        commands = new ArrayList<>(source.commands.size());
+        commands.addAll(source.commands.stream().map(cmd -> new InsertCommand(cmd.getValue())).collect(Collectors.toList()));
+    }
+
+    @Override
+    public ICommandSource copy() {
+        return new InsertCommandSource(this);
     }
 }

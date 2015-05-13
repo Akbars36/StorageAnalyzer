@@ -2,6 +2,8 @@ package com.vsu.amm.command.xmlgen;
 
 import com.vsu.amm.Constants;
 import com.vsu.amm.Utils;
+import com.vsu.amm.command.ICommandSource;
+import com.vsu.amm.command.InsertCommand;
 import com.vsu.amm.command.RemoveCommand;
 import com.vsu.amm.command.SelectCommand;
 import com.vsu.amm.data.stream.IDataStream;
@@ -10,6 +12,7 @@ import org.jdom2.Element;
 
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class RemoveCommandSource extends SimpleCommandSource {
 
@@ -65,5 +68,21 @@ public class RemoveCommandSource extends SimpleCommandSource {
                 commands.add(new RemoveCommand(valueSet.reuseRandom()
                         .intValue()));
         }
+    }
+
+    public RemoveCommandSource(RemoveCommandSource source) {
+        if (source == null)
+            return;
+
+        this.label = source.label;
+        if (source.commands == null)
+            return;
+        commands = new ArrayList<>(source.commands.size());
+        commands.addAll(source.commands.stream().map(cmd -> new RemoveCommand(cmd.getValue())).collect(Collectors.toList()));
+    }
+
+    @Override
+    public ICommandSource copy() {
+        return new RemoveCommandSource(this);
     }
 }

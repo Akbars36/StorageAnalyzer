@@ -6,6 +6,7 @@ import org.jdom2.Element;
 
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class SequenceCommandSource extends StructuredCommandSource {
 
@@ -49,5 +50,20 @@ public class SequenceCommandSource extends StructuredCommandSource {
         }
 
         return null;
+    }
+
+    public SequenceCommandSource(SequenceCommandSource source) {
+        if (source == null)
+            return;
+        if (source.commands == null)
+            return;
+        commands = new ArrayList<>(source.commands.size());
+        commands.addAll(source.commands.stream().map(ICommandSource::copy).collect(Collectors.toList()));
+        this.label = source.label;
+    }
+
+    @Override
+    public ICommandSource copy() {
+        return new SequenceCommandSource(this);
     }
 }

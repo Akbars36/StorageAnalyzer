@@ -26,4 +26,9 @@ public class LogFileSource implements ICommandSource {
     public void setParameters(Map<String, Integer> parameters) {
 
     }
+
+    @Override
+    public ICommandSource copy() {
+        return null;
+    }
 }

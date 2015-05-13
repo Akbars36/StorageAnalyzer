@@ -22,7 +22,8 @@ import java.util.List;
 public class Main {
 	public static void main(String[] args) {
 		List<IDataStorage> stor = new ArrayList<>();
-		IDataStorage s = new SortedList();
+		IDataStorage s;
+		s = new SortedList();
 		//s.setCacheSize(128);
 		s.setCounterSet(new SimpleCounterSet());
 		s.setCache(new LFUCache("30", "75", null));
@@ -51,6 +52,6 @@ public class Main {
 		Point2D p=new Point2D.Double(10, 0);
 		Point3DInIRSCoords r=tr.translate(p);
 		//System.out.println(r.getInsertCoord()+"    "+r.getRemoveCoord()+"    "+r.getSelectCoord() );
-		Vizualizator.Draw(1024,"test",stor); //red - sortedlist(lfu_cache); blue - btree(mru_cache); green - simpleListl; yellow - simpleArray 
+		Vizualizator.Draw(1024,"test",stor); //red - sortedlist(lfu_cache); blue - btree(mru_cache); green - simpleListl; yellow - simpleArray
 	}
 }

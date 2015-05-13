@@ -13,4 +13,6 @@ public interface ICommandSource {
     void printToStream(IDataStream stream);
 
     void setParameters(Map<String, Integer> parameters);
+
+    ICommandSource copy();
 }

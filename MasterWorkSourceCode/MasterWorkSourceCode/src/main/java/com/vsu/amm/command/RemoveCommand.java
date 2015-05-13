@@ -6,8 +6,7 @@ import com.vsu.amm.data.stream.IDataStream;
 /**
  * Created by VLAD on 13.05.14.
  */
-public class RemoveCommand implements ICommand {
-    private int value;
+public class RemoveCommand extends AbstractCommand {
 
     public RemoveCommand(int value) {
         this.value = value;
@@ -27,13 +26,5 @@ public class RemoveCommand implements ICommand {
             return;
         }
         stream.remove(value);
-    }
-
-    public int getValue() {
-        return value;
-    }
-
-    public void setValue(int newValue) {
-        value = newValue;
     }
 }

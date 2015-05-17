@@ -117,8 +117,12 @@ public class Main {
 			}
 			IDataStorage storage = StorageGenerator.getDataStorage(
 					storageClass, null, params);
-			storage.setCounterSet(new SimpleCounterSet());
-			storages.add(storage);
+			if (storage != null) {
+				storage.setCounterSet(new SimpleCounterSet());
+				storages.add(storage);
+			} else
+				System.out
+						.println("Хранилище с таким классом не было найдено. Оно не будет протестировано.");
 			System.out.print("Добавить еще одно хранилище? (y/n)");
 			command = br.readLine();
 		}
@@ -146,7 +150,11 @@ public class Main {
 			}
 			try {
 				size = Integer.parseInt(sizeStr);
-				return size;
+				if (size < 10 || size > 2000) {
+					System.out
+							.println("Размер выходного файла изображения должен быть в диапазоне от 10 до 2000!");
+				} else
+					return size;
 			} catch (NumberFormatException ex) {
 
 			}

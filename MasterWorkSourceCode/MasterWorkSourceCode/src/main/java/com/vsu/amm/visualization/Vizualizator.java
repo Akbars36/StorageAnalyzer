@@ -147,7 +147,7 @@ public class Vizualizator {
 					List<Integer> result = DataGenerator.getContersForStorages(
 							storages, res.getInsertCoord(),
 							res.getSelectCoord(), res.getRemoveCoord());
-					log.info("Была обработана точка ("
+					log.debug("Была обработана точка ("
 							+ x
 							+ ","
 							+ (size - y)
@@ -182,7 +182,7 @@ public class Vizualizator {
 			log.debug("x= " + x + "; delta= " + delta + "s");
 		}
 		if (storages.size() == 1) {
-			log.info("Min=" + min + " ;max= " + max);
+			log.debug("Min=" + min + " ;max= " + max);
 		}
 		ImageData data = new ImageData(min, max, coeffs);
 		return data;

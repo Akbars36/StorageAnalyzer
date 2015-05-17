@@ -20,6 +20,8 @@
     </appender>
     <!-- Корневой logger -->
     <root>
+    <!-- Для отладки выставить уровень DEBUG  -->
+    	<priority value="info" />
         <appender-ref ref="Console"/>
         <appender-ref ref="RollingFileAppender"/>
     </root>

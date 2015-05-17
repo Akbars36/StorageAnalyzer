@@ -12,7 +12,7 @@ public class DrawConstants {
 	/**
 	 * Используемые цвета
 	 */
-	public static final Color[] COLORS = { Color.RED, Color.BLUE, Color.GREEN,
+	public static final Color[] COLORS = {  Color.GREEN,Color.RED, Color.BLUE,
 			Color.YELLOW };
 	/**
 	 * Смещение для отображения координатных осей

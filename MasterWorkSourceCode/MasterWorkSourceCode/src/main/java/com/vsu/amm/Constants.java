@@ -27,4 +27,5 @@ public class Constants {
 	public static final String DEFAULT_ALIAS_NAME = "alias";
 	public static final int DEFAULT_MAX_VALUE = 300;
 	public static final String DEFAULT_LOG_FILE_NAME = "log";
+	public static final String DEFAULT_PACKAGE_NAME = "com.vsu.amm.data.storage.";
 }

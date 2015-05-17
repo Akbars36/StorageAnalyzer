@@ -6,11 +6,17 @@ import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 
 import javax.imageio.ImageIO;
@@ -24,6 +30,8 @@ import com.vsu.amm.visualization.coordinate.CoordinanateTranslator;
 import com.vsu.amm.visualization.coordinate.Point3DInIRSCoords;
 import com.vsu.amm.visualization.data.DataGenerator;
 import com.vsu.amm.visualization.data.ImageData;
+import com.vsu.amm.visualization.data.parallel.ThreadCounter;
+import com.vsu.amm.visualization.data.parallel.ThreadCounterResult;
 import com.vsu.amm.visualization.utils.DrawConstants;
 import com.vsu.amm.visualization.utils.DrawUtils;
 
@@ -35,6 +43,9 @@ import com.vsu.amm.visualization.utils.DrawUtils;
  */
 public class Vizualizator {
 
+	/**
+	 * Логгер
+	 */
 	static Logger log = Logger.getLogger(Vizualizator.class.getName());
 
 	/**
@@ -97,7 +108,7 @@ public class Vizualizator {
 	private static void drawImage(BufferedImage image, int size,
 			List<IDataStorage> storages) {
 		// Получаем список точек и их значений
-		ImageData data = getCoeffs(size, storages);
+		ImageData data = DataGenerator.getCoeffs(size, storages);
 		Map<Point2D, List<Integer>> coeffs = data.getData();
 		// Определяем тип изображения
 		boolean isSingle = storages.size() == 1;
@@ -119,73 +130,6 @@ public class Vizualizator {
 		}
 		// рисуем оси
 		drawAxis(image, size);
-	}
-
-	/**
-	 * Метод который для каждой точки изображения получает количество операций
-	 * 
-	 * @param size
-	 *            размер изображения
-	 * @param storages
-	 *            тестируемые хранилища
-	 * @return карту из точек и их значений, а также минимум и максимум(если
-	 *         одно хранилище)
-	 */
-	private static ImageData getCoeffs(int size, List<IDataStorage> storages) {
-
-		Map<Point2D, List<Integer>> coeffs = new HashMap<Point2D, List<Integer>>();
-		CoordinanateTranslator transl = new CoordinanateTranslator(size);
-		Integer min = null;
-		Integer max = null;
-		for (int x = 0; x < size; x++) {
-			Long now = Calendar.getInstance().getTimeInMillis();
-			for (int y = 0; y < size; y++) {
-				if (DrawUtils.pointInTriangle(0, 0, size / 2, (float) (size
-						* Math.sqrt(3.0) / 2.0f), size, 0, x, size - y)) {
-					Point2D p = new Point2D.Double(x, size - y);
-					Point3DInIRSCoords res = transl.translate(p);
-					List<Integer> result = DataGenerator.getContersForStorages(
-							storages, res.getInsertCoord(),
-							res.getSelectCoord(), res.getRemoveCoord());
-					log.debug("Была обработана точка ("
-							+ x
-							+ ","
-							+ (size - y)
-							+ "). Новые координаты ISR ("
-							+ res.getInsertCoord()
-							+ ","
-							+ res.getSelectCoord()
-							+ ","
-							+ res.getRemoveCoord()
-							+ "). Количество операций: "
-							+ result.stream().map(Object::toString)
-									.collect(Collectors.joining(", ")));
-
-					if (storages.size() == 1) {
-						Integer cur = storages.get(0).getCounterSet()
-								.get(OperationType.ASSIGN)
-								+ storages.get(0).getCounterSet()
-										.get(OperationType.COMPARE);
-						if (min == null || cur < min)
-							min = cur;
-						if (max == null || cur > max)
-							max = cur;
-					}
-					for (int i = 0; i < storages.size(); i++) {
-						storages.get(i).clear();
-						storages.get(i).setCounterSet(new SimpleCounterSet());
-					}
-					coeffs.put(p, result);
-				}
-			}
-			double delta = (Calendar.getInstance().getTimeInMillis() - now) / 1000.0;
-			log.debug("x= " + x + "; delta= " + delta + "s");
-		}
-		if (storages.size() == 1) {
-			log.debug("Min=" + min + " ;max= " + max);
-		}
-		ImageData data = new ImageData(min, max, coeffs);
-		return data;
 	}
 
 	/**

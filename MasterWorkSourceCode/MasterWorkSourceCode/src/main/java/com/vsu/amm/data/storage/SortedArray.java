@@ -1,6 +1,7 @@
 package com.vsu.amm.data.storage;
 
 import com.vsu.amm.stat.ICounterSet;
+import com.vsu.amm.stat.SimpleCounterSet;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -15,6 +16,13 @@ public class SortedArray extends AbstractStorage {
         array = new ArrayList<>();
     }
 
+    @Override
+	public IDataStorage cloneDefault() {
+    	SortedArray s=new SortedArray();
+    	s.setCounterSet(new SimpleCounterSet());
+		return s;
+	}
+    
     public SortedArray(Map<String, String> params) {
         array = new ArrayList<>();
     }

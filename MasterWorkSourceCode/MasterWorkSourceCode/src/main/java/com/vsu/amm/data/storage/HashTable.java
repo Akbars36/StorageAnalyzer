@@ -3,6 +3,8 @@ package com.vsu.amm.data.storage;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.vsu.amm.stat.SimpleCounterSet;
+
 /**
  * Created by VLAD on 26.03.14.
  */
@@ -22,6 +24,13 @@ public class HashTable extends AbstractStorage {
         this.storageClass = DEFAULT_STORAGE_CLASS;
         this.hashTable = new HashMap<>(hashTableSize);
     }
+    
+    @Override
+	public IDataStorage cloneDefault() {
+    	HashTable s=new HashTable();
+    	s.setCounterSet(new SimpleCounterSet());
+		return s;
+	}
 
     public HashTable(Map<String, String> params) {
 

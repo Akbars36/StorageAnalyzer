@@ -1,6 +1,7 @@
 package com.vsu.amm.data.storage;
 
 import com.vsu.amm.stat.ICounterSet;
+import com.vsu.amm.stat.SimpleCounterSet;
 
 import java.util.Map;
 
@@ -21,6 +22,14 @@ public class BTree extends AbstractStorage {
     public BTree() {
         root = new Node(0, childrenCount);
     }
+    
+    @Override
+	public IDataStorage cloneDefault() {
+    	BTree s=new BTree();
+    	s.setCounterSet(new SimpleCounterSet());
+		return s;
+	}
+
 
     public BTree(Map<String, Integer> params) {
         super();

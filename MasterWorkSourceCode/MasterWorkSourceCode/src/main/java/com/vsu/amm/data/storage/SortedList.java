@@ -1,6 +1,7 @@
 package com.vsu.amm.data.storage;
 
 import com.vsu.amm.stat.ICounterSet;
+import com.vsu.amm.stat.SimpleCounterSet;
 
 /**
  * Created by VLAD on 26.03.14.
@@ -70,6 +71,12 @@ public class SortedList extends AbstractStorage {
         }
     }
 
+    @Override
+	public IDataStorage cloneDefault() {
+    	SortedList s=new SortedList();
+    	s.setCounterSet(new SimpleCounterSet());
+		return s;
+	}
     @Override
     public void remove(int value) {
         super.remove(value);

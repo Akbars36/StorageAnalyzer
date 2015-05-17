@@ -66,4 +66,8 @@ public abstract class AbstractStorage implements IDataStorage {
             return;
         cache.add(value);
     }
+    
+    public IDataStorage cloneDefault(){
+		return null;
+    }
 }

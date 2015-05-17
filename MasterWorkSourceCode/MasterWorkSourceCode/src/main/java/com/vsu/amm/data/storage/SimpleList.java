@@ -1,6 +1,7 @@
 package com.vsu.amm.data.storage;
 
 import com.vsu.amm.stat.ICounterSet;
+import com.vsu.amm.stat.SimpleCounterSet;
 
 import java.util.Map;
 
@@ -11,6 +12,13 @@ public class SimpleList extends AbstractStorage {
 
     private Node root;
 
+    @Override
+	public IDataStorage cloneDefault() {
+    	SimpleList s=new SimpleList();
+    	s.setCounterSet(new SimpleCounterSet());
+		return s;
+	}
+    
     public SimpleList() {
         this.root = null;
     }

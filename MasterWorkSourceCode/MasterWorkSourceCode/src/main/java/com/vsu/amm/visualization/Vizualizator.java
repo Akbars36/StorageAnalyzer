@@ -7,31 +7,19 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.stream.Collectors;
 
 import javax.imageio.ImageIO;
 
 import org.apache.log4j.Logger;
 
 import com.vsu.amm.data.storage.IDataStorage;
-import com.vsu.amm.stat.ICounterSet.OperationType;
-import com.vsu.amm.stat.SimpleCounterSet;
-import com.vsu.amm.visualization.coordinate.CoordinanateTranslator;
-import com.vsu.amm.visualization.coordinate.Point3DInIRSCoords;
+import com.vsu.amm.visualization.classification.Classificator;
+import com.vsu.amm.visualization.classification.Point;
 import com.vsu.amm.visualization.data.DataGenerator;
 import com.vsu.amm.visualization.data.ImageData;
-import com.vsu.amm.visualization.data.parallel.ThreadCounter;
-import com.vsu.amm.visualization.data.parallel.ThreadCounterResult;
 import com.vsu.amm.visualization.utils.DrawConstants;
 import com.vsu.amm.visualization.utils.DrawUtils;
 
@@ -47,6 +35,8 @@ public class Vizualizator {
 	 * Логгер
 	 */
 	static Logger log = Logger.getLogger(Vizualizator.class.getName());
+
+	private static int MODE;
 
 	/**
 	 * Основной метод для создания изображения
@@ -71,6 +61,17 @@ public class Vizualizator {
 		if (storages == null || storages.isEmpty()) {
 			log.fatal("Не были выбраны хранилища для тестирования");
 			return;
+		}
+		switch (storages.size()) {
+		case 1:
+			MODE = 1;
+			break;
+		case 2:
+			MODE = 2;
+			break;
+		default:
+			MODE = 3;
+			break;
 		}
 		log.info("Создаем файл с именем " + filename + " и размером " + size
 				+ "*" + size + " пикселей.");
@@ -111,22 +112,42 @@ public class Vizualizator {
 		ImageData data = DataGenerator.getCoeffs(size, storages);
 		Map<Point2D, List<Integer>> coeffs = data.getData();
 		// Определяем тип изображения
-		boolean isSingle = storages.size() == 1;
 		Color curColor = null;
 		double curRange = 0;
 		// Определяем диапазон значений(если 1 хранилище)
-		if (isSingle)
+		if (MODE == 1) {
 			curRange = data.getMax() - data.getMin();
+		}
+		List<Point> classificationPoints = new ArrayList<>();
+		int i=0;
 		// Проходим по всем точкам, находим их цвета и отображаем на изображении
 		for (Entry<Point2D, List<Integer>> entry : coeffs.entrySet()) {
 			Point2D point = entry.getKey();
 			List<Integer> vals = entry.getValue();
-			curColor = getPointColor(isSingle, point, vals, data.getMin(),
-					curRange);
+			Point p = handlePoint(point, vals);
+			curColor = getPointColor(p, data.getMin(), curRange);
+			if (MODE == 2 && (i % (size*size/2500) == 0 )) {
+				classificationPoints.add(p);
+			}
+			i++;
 			if (curColor != null)
 				image.setRGB((int) point.getX() + DrawConstants.OFFSET, size
 						- (int) point.getY() + DrawConstants.OFFSET,
 						curColor.getRGB());
+		}
+		System.out.println(classificationPoints.size());
+		if (MODE == 2) {
+			double[] w = Classificator.classification(classificationPoints);
+			for (int x = 0; x < size; x++) {
+				for (int y = 0; y < size; y++) {
+					if (Math.abs(w[0] * (x ) + w[1]
+							* (y ) + w[2]/size) < 0.1) {
+						image.setRGB((int) x + DrawConstants.OFFSET, size
+								- (int) y + DrawConstants.OFFSET,
+								Color.BLACK.getRGB());
+					}
+				}
+			}
 		}
 		// рисуем оси
 		drawAxis(image, size);
@@ -167,18 +188,31 @@ public class Vizualizator {
 	 *            диапазон значений среди всех точек(0 если кол-во хранилищ>1)
 	 * @return цвет для точки
 	 */
-	private static Color getPointColor(boolean isSingle, Point2D point,
-			List<Integer> vals, Integer mi, double curRange) {
+	private static Color getPointColor(Point point, Integer mi, double curRange) {
 		Color curColor = null;
 		// Если одно хранилище, получаем коэффицент точки из диапазона [0,1] и
 		// цвет с использованием линейного градиента
-		if (isSingle) {
-			double ratio = (vals.get(0) - mi) / curRange;
+		if (MODE == 1) {
+			double ratio = (point.getValue() - mi) / curRange;
 			curColor = DrawUtils.getColorByLinearGradient(ratio,
 					DrawConstants.COLORS[0], DrawConstants.COLORS[1]);
 			// Иначе ищем минимальное значение среди всех хранилищ и выбираем
 			// соответствующий данному хранилищу цвет
 		} else {
+			try {
+				curColor = DrawConstants.COLORS[point.getValue()];
+			} catch (ArrayIndexOutOfBoundsException ex) {
+				log.error("Для хранилища №" + point.getValue()
+						+ "не задан цвет в точке(" + point.getX() + ","
+						+ point.getY() + ").");
+			}
+		}
+		return curColor;
+	}
+
+	private static Point handlePoint(Point2D point, List<Integer> vals) {
+		Integer value = vals.get(0);
+		if (MODE != 1) {
 			int minInd = 0;
 			int min = vals.get(minInd);
 			for (int i = 0; i < vals.size(); i++) {
@@ -187,14 +221,10 @@ public class Vizualizator {
 					min = vals.get(i);
 				}
 			}
-			try {
-				curColor = DrawConstants.COLORS[minInd];
-			} catch (ArrayIndexOutOfBoundsException ex) {
-				log.error("Для хранилища №" + minInd + "не задан цвет в точке("
-						+ point.getX() + "," + point.getY() + ").");
-			}
+			value = minInd;
 		}
-		return curColor;
+		Point result = new Point(point.getX(), point.getY(), value);
+		return result;
 	}
 
 }

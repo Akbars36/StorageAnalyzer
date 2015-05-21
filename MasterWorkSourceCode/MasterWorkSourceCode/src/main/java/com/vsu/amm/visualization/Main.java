@@ -1,9 +1,12 @@
 package com.vsu.amm.visualization;
 
 import com.vsu.amm.data.storage.IDataStorage;
+import com.vsu.amm.data.storage.SimpleList;
+import com.vsu.amm.data.storage.SortedList;
 import com.vsu.amm.data.storage.StorageGenerator;
 import com.vsu.amm.stat.SimpleCounterSet;
 import com.vsu.amm.visualization.Vizualizator;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -32,20 +35,26 @@ public class Main {
 	 * @param args
 	 *            аргументы запуска
 	 */
-	public static void main(String[] args) {
-		try {
-			InputStreamReader isr = new InputStreamReader(System.in);
-			BufferedReader br = new BufferedReader(isr);
-			System.out
-					.println("***Программа для визуализации нагрузки на хранилища***");
-			Integer size = getSize(br);
-			String imageName = getImageName(br);
-			List<IDataStorage> storages = getStorages(br);
-
-			Vizualizator.Draw(size, imageName, storages);
-		} catch (IOException e) {
-			log.error("Во время выполнения программы произошла ошибка:", e);
-		}
+	public static void main(String[] args) throws IOException {
+		//			InputStreamReader isr = new InputStreamReader(System.in);
+		//			BufferedReader br = new BufferedReader(isr);
+		//			System.out
+		//					.println("***Программа для визуализации нагрузки на хранилища***");
+		//			Integer size = getSize(br);
+		//			String imageName = getImageName(br);
+		//			List<IDataStorage> storages = getStorages(br);
+					String imageName="t300";
+					List<IDataStorage> storages=new ArrayList<>();
+					IDataStorage s=new SortedList();
+					s.setCounterSet(new SimpleCounterSet());
+					
+					storages.add(s);
+					s=new SimpleList();
+					s.setCounterSet(new SimpleCounterSet());
+					
+					storages.add(s);
+					Integer size=300;
+					Vizualizator.Draw(size, imageName, storages);
 	}
 
 	/**

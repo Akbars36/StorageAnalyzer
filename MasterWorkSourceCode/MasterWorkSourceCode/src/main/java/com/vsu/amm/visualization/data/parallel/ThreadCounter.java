@@ -75,7 +75,7 @@ public class ThreadCounter implements Callable<ThreadCounterResult> {
 			List<Integer> result = DataGenerator.getContersForStorages(
 					storages, transfRes.getInsertCoord(),
 					transfRes.getSelectCoord(), transfRes.getRemoveCoord());
-			log.info("Была обработана точка ("
+			log.debug("Была обработана точка ("
 					+ p.getX()
 					+ ","
 					+ p.getY()

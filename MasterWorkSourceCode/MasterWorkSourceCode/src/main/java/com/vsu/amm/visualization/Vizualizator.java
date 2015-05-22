@@ -119,29 +119,42 @@ public class Vizualizator {
 			curRange = data.getMax() - data.getMin();
 		}
 		List<Point> classificationPoints = new ArrayList<>();
-		int i=0;
+		int i = 0;
 		// Проходим по всем точкам, находим их цвета и отображаем на изображении
 		for (Entry<Point2D, List<Integer>> entry : coeffs.entrySet()) {
 			Point2D point = entry.getKey();
 			List<Integer> vals = entry.getValue();
 			Point p = handlePoint(point, vals);
 			curColor = getPointColor(p, data.getMin(), curRange);
-			if (MODE == 2 && (i % (size*size/2500) == 0 )) {
-				classificationPoints.add(p);
-			}
-			i++;
+			double x = p.getX();
+			double y = p.getY();
 			if (curColor != null)
 				image.setRGB((int) point.getX() + DrawConstants.OFFSET, size
 						- (int) point.getY() + DrawConstants.OFFSET,
 						curColor.getRGB());
+			if (MODE == 2
+					&& ((point.getX() % (size / 10) == 0 && point.getY()
+							% (size / 10) == 0) || DrawUtils
+							.pointInTriangleSide(0, 0, size / 2,
+									(float) (size * Math.sqrt(3.0) / 2.0f),
+									size, 0, (float) x,
+									(float) y))) {
+				image.setRGB((int) point.getX() + DrawConstants.OFFSET, size
+						- (int) point.getY() + DrawConstants.OFFSET,
+						Color.black.getRGB());
+				classificationPoints.add(p);
+			}
+
 		}
 		System.out.println(classificationPoints.size());
 		if (MODE == 2) {
 			double[] w = Classificator.classification(classificationPoints);
 			for (int x = 0; x < size; x++) {
 				for (int y = 0; y < size; y++) {
-					if (Math.abs(w[0] * (x ) + w[1]
-							* (y ) + w[2]/size) < 0.1) {
+					// System.out.println("x="+x+" y="+y+" res= "+Math.abs(w[0]
+					// * (x ) + w[1]
+					// * (y ) + w[2]));
+					if (Math.abs(w[0] * (x) + w[1] * (y) + w[2]) < 0.2) {
 						image.setRGB((int) x + DrawConstants.OFFSET, size
 								- (int) y + DrawConstants.OFFSET,
 								Color.BLACK.getRGB());

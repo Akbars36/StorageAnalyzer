@@ -62,6 +62,18 @@ public class DrawUtils {
 		Boolean checkSide3 = side(xC, yC, xA, yA, x, y) >= 0;
 		return checkSide1 && checkSide2 && checkSide3;
 	}
+	
+	public static Boolean pointInTriangleSide(float xA, float yA, float xB,
+			float yB, float xC, float yC, float x, float y) {
+		System.out.println(side(xA, yA, xB, yB, x, y));
+		System.out.println(side(xB, yB, xC, yC, x, y));
+		System.out.println(side(xC, yC, xA, yA, x, y));
+		// Точка должна быть по одну сторону от всех прямых
+		Boolean checkSide1 = side(xA, yA, xB, yB, x, y) <= 50&&side(xA, yA, xB, yB, x, y)>=0;
+		Boolean checkSide2 = side(xB, yB, xC, yC, x, y) <= 50&& side(xB, yB, xC, yC, x, y)>=0;
+		Boolean checkSide3 = side(xC, yC, xA, yA, x, y) <=50&&side(xC, yC, xA, yA, x, y)>=0;
+		return checkSide1 || checkSide2 || checkSide3;
+	}
 
 	/**
 	 * Функция получения цвета c использованием линейного градиента

@@ -17,7 +17,7 @@ public class DrawConstants {
 	/**
 	 * Смещение для отображения координатных осей
 	 */
-	public static final int OFFSET = 50;
+	public static final int OFFSET = 800;
 
 	/**
 	 * Расширение для изображения

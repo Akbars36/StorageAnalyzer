@@ -1,7 +1,9 @@
 package com.vsu.amm.visualization;
 
+import com.vsu.amm.data.storage.BTree;
 import com.vsu.amm.data.storage.IDataStorage;
 import com.vsu.amm.data.storage.SimpleList;
+import com.vsu.amm.data.storage.SortedArray;
 import com.vsu.amm.data.storage.SortedList;
 import com.vsu.amm.data.storage.StorageGenerator;
 import com.vsu.amm.stat.SimpleCounterSet;
@@ -36,25 +38,27 @@ public class Main {
 	 *            аргументы запуска
 	 */
 	public static void main(String[] args) throws IOException {
-		//			InputStreamReader isr = new InputStreamReader(System.in);
-		//			BufferedReader br = new BufferedReader(isr);
-		//			System.out
-		//					.println("***Программа для визуализации нагрузки на хранилища***");
-		//			Integer size = getSize(br);
-		//			String imageName = getImageName(br);
-		//			List<IDataStorage> storages = getStorages(br);
-					String imageName="t300";
-					List<IDataStorage> storages=new ArrayList<>();
-					IDataStorage s=new SortedList();
-					s.setCounterSet(new SimpleCounterSet());
-					
-					storages.add(s);
-					s=new SimpleList();
-					s.setCounterSet(new SimpleCounterSet());
-					
-					storages.add(s);
-					Integer size=300;
-					Vizualizator.Draw(size, imageName, storages);
+		// InputStreamReader isr = new InputStreamReader(System.in);
+		// BufferedReader br = new BufferedReader(isr);
+		// System.out
+		// .println("***Программа для визуализации нагрузки на хранилища***");
+		// Integer size = getSize(br);
+		// String imageName = getImageName(br);
+		// List<IDataStorage> storages = getStorages(br);
+		for (int i = 0; i < 10; i++) {
+			String imageName = "t300" + i;
+			List<IDataStorage> storages = new ArrayList<>();
+			IDataStorage s = new SortedArray();
+			s.setCounterSet(new SimpleCounterSet());
+
+			storages.add(s);
+			s = new BTree();
+			s.setCounterSet(new SimpleCounterSet());
+
+			storages.add(s);
+			Integer size = 100;
+			Vizualizator.Draw(size, imageName, storages);
+		}
 	}
 
 	/**

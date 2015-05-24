@@ -13,7 +13,7 @@ import libsvm.svm_parameter;
 import libsvm.svm_print_interface;
 import libsvm.svm_problem;
 
-public class Classificator {
+public class Classificator3 {
 	private static int[] arr={1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 0, 1};
 							//   [1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1, 1, 0, 1]
 	public static double[] classification(List<Point> classificationPoints) {
@@ -72,15 +72,12 @@ public class Classificator {
 			}
 		}
 		w[2]=-model.rho[0];
-		double norma=Math.sqrt(w[0]*w[0]+w[1]*w[1]+w[2]*w[2]);
 		if (model.label[1] == 0){
 			w[0]=-w[0];
 			w[1]=-w[1];
 			w[2]=-w[2];
 		}
-		w[0]/=norma;
-		w[1]/=norma;
-		w[2]/=norma;
+		
 //		while(Math.abs(w[0])<1){
 //			w[0]*=10;
 //			w[1]*=10;
@@ -89,7 +86,7 @@ public class Classificator {
 		//w[2]=w[0]*-100;
 		System.out.println(w[0] + "         " + w[1] + "          "
 				+ (-model.rho[0]));
-	//	do_cross_validation(problem,param);
+		do_cross_validation(problem,param);
 		return w;
 
 	}

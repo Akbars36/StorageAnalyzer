@@ -29,6 +29,8 @@ public class DrawUtils {
 	 */
 	public static float side(float startX, float startY, float finishX,
 			float finishY, float x, float y) {
+		//if(startY==0&&finishY==0&&y==500)
+		//System.out.println(startX+"   "+startY+"   "+finishX+"   "+finishY+"  "+x+"   "+y);
 		return (finishY - startY) * (x - startX) + (-finishX + startX)
 				* (y - startY);
 	}
@@ -64,15 +66,15 @@ public class DrawUtils {
 	}
 	
 	public static Boolean pointInTriangleSide(float xA, float yA, float xB,
-			float yB, float xC, float yC, float x, float y) {
-		System.out.println(side(xA, yA, xB, yB, x, y));
-		System.out.println(side(xB, yB, xC, yC, x, y));
-		System.out.println(side(xC, yC, xA, yA, x, y));
+			float yB, float xC, float yC, float x, float y,float size) {
+//		System.out.println(side(xA, yA, xB, yB, x, y));
+//		System.out.println(side(xB, yB, xC, yC, x, y));
+		//System.out.println(side(xC, yC, xA, yA, x, y));
 		// Точка должна быть по одну сторону от всех прямых
 		Boolean checkSide1 = side(xA, yA, xB, yB, x, y) <= 50&&side(xA, yA, xB, yB, x, y)>=0;
 		Boolean checkSide2 = side(xB, yB, xC, yC, x, y) <= 50&& side(xB, yB, xC, yC, x, y)>=0;
-		Boolean checkSide3 = side(xC, yC, xA, yA, x, y) <=50&&side(xC, yC, xA, yA, x, y)>=0;
-		return checkSide1 || checkSide2 || checkSide3;
+	//	Boolean checkSide3 = side(xC, yC, xA, yA, x, y) <=size&&side(xC, yC, xA, yA, x, y)>=0;
+		return checkSide1 || checkSide2 ;
 	}
 
 	/**

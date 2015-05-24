@@ -2,6 +2,7 @@ package com.vsu.amm.visualization;
 
 import com.vsu.amm.data.storage.BTree;
 import com.vsu.amm.data.storage.IDataStorage;
+import com.vsu.amm.data.storage.SimpleArray;
 import com.vsu.amm.data.storage.SimpleList;
 import com.vsu.amm.data.storage.SortedArray;
 import com.vsu.amm.data.storage.SortedList;
@@ -45,10 +46,10 @@ public class Main {
 		// Integer size = getSize(br);
 		// String imageName = getImageName(br);
 		// List<IDataStorage> storages = getStorages(br);
-		for (int i = 0; i < 10; i++) {
+		for (int i = 0; i < 1; i++) {
 			String imageName = "t300" + i;
 			List<IDataStorage> storages = new ArrayList<>();
-			IDataStorage s = new SortedArray();
+			IDataStorage s = new SortedList();
 			s.setCounterSet(new SimpleCounterSet());
 
 			storages.add(s);
@@ -56,7 +57,7 @@ public class Main {
 			s.setCounterSet(new SimpleCounterSet());
 
 			storages.add(s);
-			Integer size = 100;
+			Integer size = 1000;
 			Vizualizator.Draw(size, imageName, storages);
 		}
 	}

@@ -7,31 +7,21 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.stream.Collectors;
 
 import javax.imageio.ImageIO;
 
 import org.apache.log4j.Logger;
 
 import com.vsu.amm.data.storage.IDataStorage;
-import com.vsu.amm.stat.ICounterSet.OperationType;
-import com.vsu.amm.stat.SimpleCounterSet;
+import com.vsu.amm.visualization.classification.Classificator;
+import com.vsu.amm.visualization.classification.Point;
 import com.vsu.amm.visualization.coordinate.CoordinanateTranslator;
 import com.vsu.amm.visualization.coordinate.Point3DInIRSCoords;
 import com.vsu.amm.visualization.data.DataGenerator;
 import com.vsu.amm.visualization.data.ImageData;
-import com.vsu.amm.visualization.data.parallel.ThreadCounter;
-import com.vsu.amm.visualization.data.parallel.ThreadCounterResult;
 import com.vsu.amm.visualization.utils.DrawConstants;
 import com.vsu.amm.visualization.utils.DrawUtils;
 
@@ -47,6 +37,11 @@ public class Vizualizator {
 	 * Логгер
 	 */
 	static Logger log = Logger.getLogger(Vizualizator.class.getName());
+
+	/**
+	 * Переменная показывающая текущее количество хранилищ
+	 */
+	private static int MODE;
 
 	/**
 	 * Основной метод для создания изображения
@@ -71,6 +66,17 @@ public class Vizualizator {
 		if (storages == null || storages.isEmpty()) {
 			log.fatal("Не были выбраны хранилища для тестирования");
 			return;
+		}
+		switch (storages.size()) {
+		case 1:
+			MODE = 1;
+			break;
+		case 2:
+			MODE = 2;
+			break;
+		default:
+			MODE = 3;
+			break;
 		}
 		log.info("Создаем файл с именем " + filename + " и размером " + size
 				+ "*" + size + " пикселей.");
@@ -111,22 +117,34 @@ public class Vizualizator {
 		ImageData data = DataGenerator.getCoeffs(size, storages);
 		Map<Point2D, List<Integer>> coeffs = data.getData();
 		// Определяем тип изображения
-		boolean isSingle = storages.size() == 1;
 		Color curColor = null;
 		double curRange = 0;
 		// Определяем диапазон значений(если 1 хранилище)
-		if (isSingle)
+		if (MODE == 1) {
 			curRange = data.getMax() - data.getMin();
+		}
+		// Список из точек для классификации
+		List<Point> classificationPoints = new ArrayList<>();
 		// Проходим по всем точкам, находим их цвета и отображаем на изображении
 		for (Entry<Point2D, List<Integer>> entry : coeffs.entrySet()) {
 			Point2D point = entry.getKey();
 			List<Integer> vals = entry.getValue();
-			curColor = getPointColor(isSingle, point, vals, data.getMin(),
-					curRange);
+			// считаем значение в точке
+			Point p = new Point(point, vals);
+			// определяем цвет
+			curColor = getPointColor(p, data.getMin(), curRange);
 			if (curColor != null)
 				image.setRGB((int) point.getX() + DrawConstants.OFFSET, size
 						- (int) point.getY() + DrawConstants.OFFSET,
 						curColor.getRGB());
+			// Если 2 хранилища пытаемся добавить точку
+			if (MODE == 2)
+				addPointForClassification(classificationPoints, p, size);
+
+		}
+		// Если 2 хранилища рисуем линию классификатора
+		if (MODE == 2) {
+			drawClassificatorLine(classificationPoints, image, size);
 		}
 		// рисуем оси
 		drawAxis(image, size);
@@ -167,34 +185,88 @@ public class Vizualizator {
 	 *            диапазон значений среди всех точек(0 если кол-во хранилищ>1)
 	 * @return цвет для точки
 	 */
-	private static Color getPointColor(boolean isSingle, Point2D point,
-			List<Integer> vals, Integer mi, double curRange) {
+	private static Color getPointColor(Point point, Integer mi, double curRange) {
 		Color curColor = null;
 		// Если одно хранилище, получаем коэффицент точки из диапазона [0,1] и
 		// цвет с использованием линейного градиента
-		if (isSingle) {
-			double ratio = (vals.get(0) - mi) / curRange;
+		if (MODE == 1) {
+			double ratio = (point.getValue() - mi) / curRange;
 			curColor = DrawUtils.getColorByLinearGradient(ratio,
 					DrawConstants.COLORS[0], DrawConstants.COLORS[1]);
 			// Иначе ищем минимальное значение среди всех хранилищ и выбираем
 			// соответствующий данному хранилищу цвет
 		} else {
-			int minInd = 0;
-			int min = vals.get(minInd);
-			for (int i = 0; i < vals.size(); i++) {
-				if (vals.get(i) < min) {
-					minInd = i;
-					min = vals.get(i);
-				}
-			}
 			try {
-				curColor = DrawConstants.COLORS[minInd];
+				curColor = DrawConstants.COLORS[point.getValue()];
 			} catch (ArrayIndexOutOfBoundsException ex) {
-				log.error("Для хранилища №" + minInd + "не задан цвет в точке("
-						+ point.getX() + "," + point.getY() + ").");
+				log.error("Для хранилища №" + point.getValue()
+						+ "не задан цвет в точке(" + point.getX() + ","
+						+ point.getY() + ").");
 			}
 		}
 		return curColor;
+	}
+
+	/**
+	 * Функция которая добавляет точки по которым будет производиться
+	 * классификация
+	 * 
+	 * @param classificationPoints
+	 *            точки по которым производится классификация
+	 * @param point
+	 *            точка для которой определяется будет ли она добавлена к списку
+	 * @param size
+	 *            размер изображения
+	 */
+	private static void addPointForClassification(
+			List<Point> classificationPoints, Point point, Integer size) {
+		double x = point.getX();
+		double y = point.getY();
+		// Строим сетку из точек и берем точки лежащие на сторонах треугольника
+		if (((x % (size / 40) == 0 && y % (size / 40) == 0) || DrawUtils
+				.pointInTriangleSide(0, 0, size / 2,
+						(float) (size * Math.sqrt(3.0) / 2.0f), size, 0,
+						(float) x, (float) y))) {
+			classificationPoints.add(point);
+		}
+	}
+
+	/**
+	 * Функция которая производит классификацию и рисует разделяющую линию
+	 * 
+	 * @param classificationPoints
+	 *            точки по которым производится классификация
+	 * @param image
+	 *            изображение на котором надо нарисовать линию
+	 * @param size
+	 *            размер изображения
+	 */
+	private static void drawClassificatorLine(List<Point> classificationPoints,
+			BufferedImage image, Integer size) {
+		log.info("Началась классификация.");
+		double[] w = Classificator.classification(classificationPoints);
+		log.info("Классификация выполнена успешно.");
+		for (int x = 0; x < size; x++) {
+			for (int y = 0; y < size; y++) {
+				if (Math.abs(DrawUtils.evalLineFunction(w, x, y)) < 0.001) {
+					image.setRGB((int) x + DrawConstants.OFFSET, size - (int) y
+							+ DrawConstants.OFFSET, Color.BLACK.getRGB());
+				}
+			}
+		}
+		Point2D p1 = new Point2D.Double(0, DrawUtils.evalLineFunctionYValue(w,
+				0));
+		Point2D p2 = new Point2D.Double(size, DrawUtils.evalLineFunctionYValue(
+				w, size));
+		// Переводим координаты из 2х мерных в 3х мерные
+		CoordinanateTranslator transl = new CoordinanateTranslator(size);
+		Point3DInIRSCoords r1 = transl.translate(p1);
+		Point3DInIRSCoords r2 = transl.translate(p2);
+		Point3DInIRSCoords r3 = new Point3DInIRSCoords(0, 0, 0);
+		double[] coeffs = DrawUtils.getPlaneCoeffsByThreePoints(r1, r2, r3);
+		System.out.println("Уравнение разделяющей плоскости: " + coeffs[0]
+				+ "*x+" + coeffs[1] + "*y+" + coeffs[2] + "z*+" + coeffs[3]
+				+ "=0");
 	}
 
 }

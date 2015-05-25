@@ -11,7 +11,6 @@ import org.apache.log4j.Logger;
 
 import com.vsu.amm.data.storage.IDataStorage;
 import com.vsu.amm.stat.SimpleCounterSet;
-import com.vsu.amm.stat.ICounterSet.OperationType;
 import com.vsu.amm.visualization.Vizualizator;
 import com.vsu.amm.visualization.coordinate.CoordinanateTranslator;
 import com.vsu.amm.visualization.coordinate.Point3DInIRSCoords;
@@ -75,7 +74,7 @@ public class ThreadCounter implements Callable<ThreadCounterResult> {
 			List<Integer> result = DataGenerator.getContersForStorages(
 					storages, transfRes.getInsertCoord(),
 					transfRes.getSelectCoord(), transfRes.getRemoveCoord());
-			log.info("Была обработана точка ("
+			log.debug("Была обработана точка ("
 					+ p.getX()
 					+ ","
 					+ p.getY()

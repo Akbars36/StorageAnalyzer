@@ -54,12 +54,16 @@ public class SelectCommandSource extends SimpleCommandSource {
         label = elem.getAttributeValue("label");
     }
 	public SelectCommandSource(Integer selectCount, AliasSet aliasSet) {
-		valueSet = new StandardRandomValueSet(0, Constants.DEFAULT_MAX_VALUE);
-		valueSet = aliasSet.getAlias(Constants.DEFAULT_ALIAS_NAME);
+		if (aliasSet == null)
+            valueSet = new StandardRandomValueSet(0, Constants.DEFAULT_MAX_VALUE);
+        else
+		    valueSet = aliasSet.getAlias(Constants.DEFAULT_ALIAS_NAME);
 		if (valueSet.hasStoredValues()) {
-			commands = new ArrayList<>(selectCount);
+
 			for (int i = 0; i < selectCount; i++)
 				commands.add(new SelectCommand(valueSet.reuseRandom()));
-		}
+		} else
+            for (int i = 0; i < selectCount; i++)
+                commands.add(new SelectCommand(valueSet.generateRandom()));
 	}
 }

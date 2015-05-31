@@ -38,17 +38,19 @@ public class DataSetPlayer implements ICommandPlayer {
         if (dataSets == null)
             return;
 
+        int i = 0;
         ICommand cmd = commandSource.next();
         while (cmd != null) {
             for (IDataStorage dataSet : dataSets) cmd.execute(dataSet);
-           
+            i++;
+            if (i % 1000 == 0) {
+                System.out.println("executed: " + cmd.toString() + " command");
+            }
             cmd = commandSource.next();
         }
         commandSource.printToStream(stream);
         if (stream != null)
             stream.close();
-
-        
     }
 
 }

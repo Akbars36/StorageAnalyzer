@@ -40,27 +40,30 @@ public class DataStreamImpl implements IDataStream {
     }
 
     @Override
-    public void get(int value) {
+    public boolean get(int value) {
         if (dataStream != null) {
             dataStream.get(value);
         }
         dataStorages.stream().filter(dataStorage -> dataStorage != null).forEach(dataStorage -> dataStorage.get(value));
+        return false;
     }
 
     @Override
-    public void set(int value) {
+    public boolean set(int value) {
         if (dataStream != null) {
             dataStream.set(value);
         }
         dataStorages.stream().filter(dataStorage -> dataStorage != null).forEach(dataStorage -> dataStorage.set(value));
+        return false;
     }
 
     @Override
-    public void remove(int value) {
+    public boolean remove(int value) {
         if (dataStream != null) {
             dataStream.remove(value);
         }
         dataStorages.stream().filter(dataStorage -> dataStorage != null).forEach(dataStorage -> dataStorage.remove(value));
+        return false;
     }
 
     public void flush(String params) {
@@ -86,8 +89,8 @@ public class DataStreamImpl implements IDataStream {
             first = false;
         }
         IDataStorage bestDataStorage = null;
-        int countersBest;
-        int countersCurr;
+        long countersBest;
+        long countersCurr;
         for (IDataStorage dataStorage : dataStorages) {
             if (bestDataStorage == null) {
                 bestDataStorage = dataStorage;

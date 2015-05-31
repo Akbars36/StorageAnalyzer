@@ -1,6 +1,7 @@
 package com.vsu.amm.data.storage;
 
 import com.vsu.amm.stat.ICounterSet;
+import com.vsu.amm.stat.ICounterSet.OperationType;
 import com.vsu.amm.stat.SimpleCounterSet;
 
 import java.util.Map;
@@ -18,19 +19,22 @@ public class SimpleList extends AbstractStorage {
     	s.setCounterSet(new SimpleCounterSet());
 		return s;
 	}
-    
+
+    @Override
+    public void uncheckedInsert(int value) {
+        Node n = new Node(value);
+        n.next = root;
+        root = n;
+        counterSet.inc(OperationType.ASSIGN);
+    }
+
+    @Override
+    public String getStorageName() {
+        return "Simple List";
+    }
+
     public SimpleList() {
         this.root = null;
-    }
-
-    @Override
-    public ICounterSet getCounterSet() {
-        return counterSet;
-    }
-
-    @Override
-    public void setCounterSet(ICounterSet counterSet) {
-        this.counterSet = counterSet;
     }
 
     @Override
@@ -54,52 +58,58 @@ public class SimpleList extends AbstractStorage {
 	}
 
 	@Override
-	public void get(int value) {
+	public boolean get(int value) {
 		Node tmp = root;
-		boolean found = false;
-		while ((tmp != null) && !found) {
-			counterSet.inc(ICounterSet.OperationType.COMPARE);
+		while (tmp != null) {
+			counterSet.inc(OperationType.COMPARE);
 			if (tmp.value == value) {
-				found = true;
+				return true;
 			}
 			tmp = tmp.next;
 		}
+        return false;
 	}
 
 
     @Override
-    public void set(int value) {
-        if (root != null) {
-            counterSet.inc(ICounterSet.OperationType.ASSIGN);
-            Node node = new Node(value);
-            node.next = root;
-            root = node;
-        } else {
-            counterSet.inc(ICounterSet.OperationType.ASSIGN);
+    public boolean set(int value) {
+        if (root == null) {
+            counterSet.inc(OperationType.ASSIGN);
             root = new Node(value);
+            return true;
         }
+        Node tmp = root;
+        while (tmp != null) {
+            counterSet.inc(OperationType.COMPARE);
+            if (tmp.value == value)
+                return false;
+            tmp = tmp.next;
+        }
+        counterSet.inc(OperationType.ASSIGN);
+        Node n = new Node(value);
+        n.next = root;
+        root = n;
+        return true;
     }
 
     @Override
-    public void remove(int value) {
+    public boolean remove(int value) {
         Node curr = root;
         Node prev = null;
         while (curr != null) {
-            counterSet.inc(ICounterSet.OperationType.COMPARE);
+            counterSet.inc(OperationType.COMPARE);
             if (curr.value == value) {
-                if (curr == root) {
+                if (curr == root)
                     root = root.next;
-                    curr = root;
-                    prev = null;
-                } else {
+                else
                     prev.next = curr.next;
-                    curr = prev.next;
-                }
+                return true;
             } else {
                 prev = curr;
                 curr = curr.next;
             }
         }
+        return false;
     }
 
     class Node {

@@ -11,15 +11,17 @@ public interface ICounterSet {
 
     void inc(OperationType operation);
 
-    void inc(OperationType operation, int delta);
+    void inc(OperationType operation, long delta);
 
-    int get(OperationType operation);
+    long get(OperationType operation);
 
     void clear();
 
     enum OperationType {
         COMPARE,
-        ASSIGN
+        ASSIGN,
+        DEFERRED_COMPARE,
+        CALCULATION, DEFERRED_CALCULATION, DEFERRED_ASSIGN
     }
 
 

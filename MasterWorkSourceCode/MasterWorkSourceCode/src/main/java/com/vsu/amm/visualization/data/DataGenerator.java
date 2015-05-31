@@ -51,7 +51,7 @@ public class DataGenerator {
 	 * @return список, который содержит сумму операций присваивания и сравнения
 	 *         для каждого хранилища
 	 */
-	public static List<Integer> getContersForStorages(
+	public static List<Long> getContersForStorages(
 			List<IDataStorage> storages, Integer insertCount,
 			Integer selectCount, Integer removeCount) {
 		// Создаем плеер для тестирования нагрузки
@@ -61,10 +61,10 @@ public class DataGenerator {
 				selectCount, removeCount));
 		// Получаем список , который содержит сумму операций присваивания и
 		// сравнения для каждого хранилища
-		List<Integer> result = new ArrayList<>();
+		List<Long> result = new ArrayList<>();
 		for (int i = 0; i < storages.size(); i++) {
 			ICounterSet set = storages.get(i).getCounterSet();
-			Integer sumOfOperations = set.get(OperationType.ASSIGN)
+			Long sumOfOperations = set.get(OperationType.ASSIGN)
 					+ set.get(OperationType.COMPARE);
 			result.add(sumOfOperations);
 		}
@@ -87,9 +87,9 @@ public class DataGenerator {
 		int PROCESSORS_COUNT = Runtime.getRuntime().availableProcessors();
 		ExecutorService executor = Executors
 				.newFixedThreadPool(PROCESSORS_COUNT + 1);
-		Map<Point2D, List<Integer>> coeffs = new HashMap<Point2D, List<Integer>>();
-		Integer min = null;
-		Integer max = null;
+		Map<Point2D, List<Long>> coeffs = new HashMap<>();
+		Long min = null;
+		Long max = null;
 		// Генерируем задания по обработке точек
 		List<Future<ThreadCounterResult>> list = genearateTasks(size, storages,
 				executor, PROCESSORS_COUNT);
@@ -110,6 +110,7 @@ public class DataGenerator {
 				coeffs.putAll(r.getResult());
 			} catch (InterruptedException | ExecutionException e) {
 				log.error("Во время выполнения программы возникла ошибка. Результат может быть неккоректным.");
+				e.printStackTrace();
 			}
 		}
 		executor.shutdown();

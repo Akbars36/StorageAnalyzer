@@ -6,6 +6,7 @@ import com.vsu.amm.data.stream.IDataStream;
 import org.apache.log4j.Logger;
 import org.jdom2.Element;
 
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -15,7 +16,7 @@ import java.util.Map;
 public abstract class SimpleCommandSource implements ICommandSource {
 
     protected static Logger logger = Logger.getLogger(ICommandSource.class);
-    protected List<ICommand> commands = null;
+    protected List<ICommand> commands = new LinkedList<>();
     protected int currentCommand = 0;
     protected BaseValueSet valueSet;
     protected String label;

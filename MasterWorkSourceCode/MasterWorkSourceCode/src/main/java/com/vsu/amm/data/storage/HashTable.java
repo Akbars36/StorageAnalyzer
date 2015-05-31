@@ -3,6 +3,8 @@ package com.vsu.amm.data.storage;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.vsu.amm.stat.ICounterSet;
+import com.vsu.amm.stat.ICounterSet.OperationType;
 import com.vsu.amm.stat.SimpleCounterSet;
 
 /**
@@ -14,15 +16,17 @@ public class HashTable extends AbstractStorage {
     private static final String HASH_TABLE_SIZE_PARAM_NAME = "hash_table_size";
     private static final int DEFAULT_HASH_TABLE_SIZE = 100;
     private static final String DEFAULT_STORAGE_CLASS = "com.vsu.amm.data.storage.SimpleList";
-    private final Map<Integer, IDataStorage> hashTable;
+    private final IDataStorage[] hashTable;
     private final int hashTableSize;
     private Map<String, String> storageParams;
     private String storageClass;
 
+
+
     public HashTable() {
         this.hashTableSize = DEFAULT_HASH_TABLE_SIZE;
         this.storageClass = DEFAULT_STORAGE_CLASS;
-        this.hashTable = new HashMap<>(hashTableSize);
+        this.hashTable = new IDataStorage[hashTableSize];
     }
     
     @Override
@@ -31,6 +35,16 @@ public class HashTable extends AbstractStorage {
     	s.setCounterSet(new SimpleCounterSet());
 		return s;
 	}
+
+    @Override
+    public void uncheckedInsert(int value) {
+        set(value);
+    }
+
+    @Override
+    public String getStorageName() {
+        return "Hash Table of " + StorageGenerator.getDataStorage(storageClass, null).getStorageName();
+    }
 
     public HashTable(Map<String, String> params) {
 
@@ -49,46 +63,45 @@ public class HashTable extends AbstractStorage {
                 storageParams.put(param.substring(param.indexOf(".")), params.get(param));
             }
         });
-        this.hashTable = new HashMap<>(hashTableSize);
+        this.hashTable = new IDataStorage[hashTableSize];
     }
 
     @Override
     public void clear() {
         super.clear();
-        hashTable.clear();
+        for (int i = 0; i < hashTableSize; i++)
+            if (hashTable[i] != null)
+                hashTable[i].clear();
     }
 
     @Override
-    public void get(int value) {
-        if (getFromCache(value))
-            return;
-        int key = value / hashTableSize;
-        if (hashTable.containsKey(key)) {
-            hashTable.get(key).get(value);
-        }
+    public boolean get(int value) {
+        int key = new Integer(value).hashCode() % hashTableSize;
+        counterSet.inc(OperationType.CALCULATION);
+        if (hashTable[key] == null)
+            return false;
+        return hashTable[key].get(value);
     }
 
     @Override
-    public void set(int value) {
-        super.set(value);
-        int key = value / hashTableSize;
-        if (hashTable.containsKey(key)) {
-            hashTable.get(key).set(value);
-        } else {
-            IDataStorage temp = StorageGenerator.getDataStorage(storageClass, null, null);
-            temp.setCounterSet(counterSet);
-            temp.set(value);
-            hashTable.put(key, temp);
+    public boolean set(int value) {
+        int key = new Integer(value).hashCode() % hashTableSize;
+        counterSet.inc(OperationType.CALCULATION);
+        //элемента не существует в хранилище
+        if (hashTable[key] == null) {
+            hashTable[key] = StorageGenerator.getDataStorage(storageClass, null);
+            hashTable[key].setCounterSet(counterSet);
         }
-
+        return hashTable[key].set(value);
     }
 
     @Override
-    public void remove(int value) {
-        super.remove(value);
-        int key = value / hashTableSize;
-        if (hashTable.containsKey(key)) {
-            hashTable.get(key).remove(value);
-        }
+    public boolean remove(int value) {
+        int key = new Integer(value).hashCode() % hashTableSize;
+        counterSet.inc(OperationType.CALCULATION);
+        if (hashTable[key] == null)
+            return false;
+        return hashTable[key].remove(value);
     }
+
 }

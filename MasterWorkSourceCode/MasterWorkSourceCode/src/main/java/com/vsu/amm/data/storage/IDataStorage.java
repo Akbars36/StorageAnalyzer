@@ -15,8 +15,6 @@ public interface IDataStorage extends IDataContainer {
 
 	void setCounterSet(ICounterSet counterSet);
 
-	void setCache(AbstractCache cache);
-
 	void setStorageParams(Map<String, Integer> params);
 
 	void clear();
@@ -27,4 +25,8 @@ public interface IDataStorage extends IDataContainer {
 	 * @return
 	 */
 	IDataStorage cloneDefault();
+
+	String getStorageName();
+
+	void uncheckedInsert(int value);
 }

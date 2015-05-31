@@ -1,12 +1,10 @@
 package com.vsu.amm.data.storage;
 
 import com.vsu.amm.Constants;
-import com.vsu.amm.data.cache.AbstractCache;
 import com.vsu.amm.stat.SimpleCounterSet;
 import org.apache.log4j.Logger;
 import org.jdom2.Element;
 
-import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -51,24 +49,17 @@ public class StorageGenerator {
 			String storageParamName;
 			String storageParamValue;
 			storageParams = new HashMap<>();
-			AbstractCache cache = null;
+
 			for (Element storageParam : child.getChildren()) {
 				if ("param".equals(storageParam.getName())) {
 					storageParamName = storageParam.getAttributeValue("name");
 					storageParamValue = storageParam.getAttributeValue("value");
 					storageParams.put(storageParamName,
 							Integer.parseInt(storageParamValue));
-				} else if ("cache".equals(storageParam.getName())) {
-					String cacheClass = storageParam.getAttributeValue("class");
-					String cacheSize = storageParam.getAttributeValue("size");
-					String cacheInsertRate = storageParam
-							.getAttributeValue("rate");
-					cache = getCache(cacheClass, cacheSize, cacheInsertRate,
-							params);
 				}
 			}
 
-			IDataStorage storage = getDataStorage(c, cache, storageParams);
+			IDataStorage storage = getDataStorage(c, storageParams);
 			if (storage != null) {
 				storage.setCounterSet(new SimpleCounterSet());
 				storages.add(storage);
@@ -78,33 +69,16 @@ public class StorageGenerator {
 		return storages;
 	}
 
-	private static AbstractCache getCache(String cacheClass, String cacheSize,
-			String cacheInsertRate, Map<String, Integer> params) {
-		if (cacheClass == null)
-			return null;
-		try {
-			Constructor<?> c = Class.forName(cacheClass).getConstructor(
-					String.class, String.class, Map.class);
-			return (AbstractCache) (c.newInstance(cacheSize, cacheInsertRate,
-					params));
-		} catch (Exception ignored) {
-		}
-
-		return null;
-	}
-
 	/**
 	 * Метод получения хранилища по названию класса и параметрам Для стандартных
 	 * хранилищ предусмотрено подставление суффикса
 	 * Constants.DEFAULT_PACKAGE_NAME
 	 * 
 	 * @param storageName
-	 * @param cache
 	 * @param storageParams
 	 * @return
 	 */
-	public static IDataStorage getDataStorage(String storageName,
-			AbstractCache cache, Map<String, Integer> storageParams) {
+	public static IDataStorage getDataStorage(String storageName,  Map<String, Integer> storageParams) {
 		IDataStorage result;
 		if (storageName == null)
 			return null;
@@ -112,7 +86,6 @@ public class StorageGenerator {
 			Object o = Class.forName(storageName).newInstance();
 			result = (IDataStorage) o;
 			result.setStorageParams(storageParams);
-			result.setCache(cache);
 			return result;
 		} catch (Exception e) {
 			try {
@@ -121,7 +94,6 @@ public class StorageGenerator {
 						.newInstance();
 				result = (IDataStorage) o;
 				result.setStorageParams(storageParams);
-				result.setCache(cache);
 				return result;
 			} catch (Exception ex) {
 

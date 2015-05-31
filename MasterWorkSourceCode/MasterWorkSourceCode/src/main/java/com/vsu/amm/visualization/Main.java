@@ -116,7 +116,7 @@ public class Main {
 				command = br.readLine();
 			}
 			IDataStorage storage = StorageGenerator.getDataStorage(
-					storageClass, null, params);
+					storageClass, params);
 			if (storage != null) {
 				storage.setCounterSet(new SimpleCounterSet());
 				storages.add(storage);

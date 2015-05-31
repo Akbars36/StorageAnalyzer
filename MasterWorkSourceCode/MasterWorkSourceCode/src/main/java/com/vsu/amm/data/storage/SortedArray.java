@@ -1,97 +1,171 @@
 package com.vsu.amm.data.storage;
 
-import com.vsu.amm.stat.ICounterSet;
+import com.vsu.amm.stat.ICounterSet.OperationType;
 import com.vsu.amm.stat.SimpleCounterSet;
-
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.Map;
 
 
 public class SortedArray extends AbstractStorage {
 
-    private final ArrayList<Integer> array;
+    private static final int DEFAULT_ARRAY_SIZE = 50;
+    private int itemsCount = 0;
+    private int[] array;
 
     public SortedArray() {
-        array = new ArrayList<>();
+        array = new int[DEFAULT_ARRAY_SIZE];
     }
 
-    @Override
-	public IDataStorage cloneDefault() {
-    	SortedArray s=new SortedArray();
-    	s.setCounterSet(new SimpleCounterSet());
-		return s;
-	}
-    
-    public SortedArray(Map<String, String> params) {
-        array = new ArrayList<>();
+    public SortedArray(int initialSize) {
+        array = new int[initialSize > 0 ? initialSize : DEFAULT_ARRAY_SIZE];
     }
 
     @Override
     public void clear() {
         super.clear();
-        array.clear();
+        itemsCount = 0;
     }
 
+    private void expandArray(int value, int position) {
+        int[] tmpArray = new int[array.length * 2 + 1];
+        for (int i = 0; i < position; i++) {
+            tmpArray[i] = array[i];
+            counterSet.inc(OperationType.ASSIGN);
+        }
+        counterSet.inc(OperationType.ASSIGN);
+        tmpArray[position] = value;
+        for (int i = position + 1; i < itemsCount; i++) {
+            counterSet.inc(OperationType.ASSIGN);
+            tmpArray[i] = array[i - 1];
+        }
+        array = tmpArray;
+        itemsCount++;
+    }
 
-    @Override
-    public void get(int value) {
-        if (getFromCache(value))
+    private void insertAtPosition(int value, int position) {
+        if (itemsCount == array.length) {
+            expandArray(value, position);
             return;
-        Iterator<Integer> iterator = array.iterator();
-        while ((iterator.hasNext()) && (iterator.next() != value)) {
-            counterSet.inc(ICounterSet.OperationType.COMPARE);
         }
-        counterSet.inc(ICounterSet.OperationType.COMPARE);
+
+        for (int i = itemsCount; i > position; i--) {
+            counterSet.inc(OperationType.ASSIGN);
+            array[i] = array[i-1];
+        }
+        counterSet.inc(OperationType.ASSIGN);
+        array[position] = value;
+        itemsCount++;
     }
 
     @Override
-    public void set(int value) {
-        super.set(value);
-        int index = 0;
-        if (array.size() == 0) {
-            array.add(value);
-            counterSet.inc(ICounterSet.OperationType.ASSIGN);
-        } else {
-            while ((index < array.size()) && (array.get(index) < value)) {
-                counterSet.inc(ICounterSet.OperationType.COMPARE);
-                index++;
-            }
-            if (index != array.size()) {
-                counterSet.inc(ICounterSet.OperationType.COMPARE);
-            }
-            if (index == array.size()) {
-                array.add(value);
-                counterSet.inc(ICounterSet.OperationType.ASSIGN);
-            } else {
-                array.add(index, value);
-                counterSet.inc(ICounterSet.OperationType.ASSIGN, array.size() - index + 1);
-            }
-        }
+    public IDataStorage cloneDefault() {
+        SortedArray s = new SortedArray();
+        s.setCounterSet(new SimpleCounterSet());
+        return s;
     }
 
     @Override
-    public void remove(int value) {
-        super.remove(value);
-        int index;
+    public void uncheckedInsert(int value) {
+        set(value);
+    }
+
+    @Override
+    public String getStorageName() {
+        return "Sorted Array";
+    }
+
+    @Override
+    public boolean get(int value) {
+        counterSet.inc(OperationType.COMPARE);
+        if (value < array[0])
+            return false;
+        counterSet.inc(OperationType.COMPARE);
+        if (value > array[itemsCount - 1])
+            return false;
+
         int first = 0;
-        boolean end = false;
-        while (!end) {
-            for (index = first; index < array.size(); index++) {
-                if (array.get(index) == value) {
-                    counterSet.inc(ICounterSet.OperationType.COMPARE);
-                    counterSet.inc(ICounterSet.OperationType.ASSIGN, array.size() - index);
-                    break;
-                } else {
-                    counterSet.inc(ICounterSet.OperationType.COMPARE);
-                }
-            }
-            if (index != array.size()) {
-                first = index;
-                array.remove(index);
-            } else {
-                end = true;
-            }
+        int last = itemsCount - 1;
+
+        while (first < last) {
+            counterSet.inc(OperationType.COMPARE);
+            int mid = first + (last - first) / 2;
+            if (array[mid] == value)
+                return true;
+            if (array[mid] < value)
+                last = mid;
+            else first = mid + 1;
         }
+        return false;
+    }
+
+    @Override
+    public boolean set(int value) {
+        if (itemsCount == 0) {
+            insertAtPosition(value, 0);
+            return true;
+        }
+
+        counterSet.inc(OperationType.COMPARE);
+        if (value < array[0]) {
+            insertAtPosition(value, 0);
+            return true;
+        }
+
+        counterSet.inc(OperationType.COMPARE);
+        if (value > array[itemsCount - 1]) {
+            insertAtPosition(value, itemsCount);
+            return true;
+        }
+
+        int first = 0;
+        int last = itemsCount - 1;
+
+        while (first < last) {
+            counterSet.inc(OperationType.COMPARE);
+            int mid = first + (last - first) / 2;
+            if (array[mid] == value)
+                return false;
+            if (array[mid] < value)
+                last = mid;
+            else first = mid + 1;
+        }
+        insertAtPosition(value, first);
+        return true;
+    }
+
+    @Override
+    public boolean remove(int value) {
+        counterSet.inc(OperationType.COMPARE);
+        if (value < array[0])
+            return false;
+
+        counterSet.inc(OperationType.COMPARE);
+        if (value > array[itemsCount - 1]) {
+            return false;
+        }
+
+        int first = 0;
+        int last = itemsCount - 1;
+        int remIndex = -1;
+
+        while (first < last) {
+            counterSet.inc(OperationType.COMPARE);
+            int mid = first + (last - first) / 2;
+            if (array[mid] == value) {
+                remIndex = mid;
+                break;
+            }
+            if (array[mid] < value)
+                last = mid;
+            else first = mid + 1;
+        }
+        if (remIndex == -1)
+            return false;
+
+        for (int i = remIndex + 1; i < itemsCount; i++) {
+            counterSet.inc(OperationType.ASSIGN);
+            array[i - 1] = array[i];
+        }
+
+        itemsCount--;
+        return true;
     }
 }

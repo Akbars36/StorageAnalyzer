@@ -1,6 +1,7 @@
 package com.vsu.amm.data.storage;
 
 import com.vsu.amm.stat.ICounterSet;
+import com.vsu.amm.stat.ICounterSet.OperationType;
 import com.vsu.amm.stat.SimpleCounterSet;
 
 import java.util.ArrayList;
@@ -15,16 +16,35 @@ import java.util.Iterator;
  */
 public class SimpleArray extends AbstractStorage {
 
-    private final ArrayList<Integer> array;
+    private static final int DEFAULT_ARRAY_SIZE = 50;
+    private int itemsCount = 0;
+    private int[] array;
+
 
     public SimpleArray() {
-        array = new ArrayList<>();
+        array = new int[DEFAULT_ARRAY_SIZE];
+    }
+
+    public SimpleArray(int initialSize) {
+        if (initialSize > 0)
+            array = new int[initialSize];
+        else
+            array = new int[DEFAULT_ARRAY_SIZE];
     }
 
     @Override
     public void clear() {
         super.clear();
-        array.clear();
+        itemsCount = 0;
+    }
+
+    private void expandArray() {
+        int[] tmpArray = new int[array.length * 2 + 1];
+        for (int i = 0; i < array.length; i++) {
+            tmpArray[i] = array[i];
+            counterSet.inc(OperationType.ASSIGN);
+        }
+        array = tmpArray;
     }
     
     @Override
@@ -35,46 +55,67 @@ public class SimpleArray extends AbstractStorage {
 	}
 
     @Override
-    public void get(int value) {
-        if (getFromCache(value))
-            return;
-        Iterator<Integer> iterator = array.iterator();
-        while ((iterator.hasNext()) && (iterator.next() != value)) {
-            counterSet.inc(ICounterSet.OperationType.COMPARE);
+    public void uncheckedInsert(int value) {
+        if (itemsCount == array.length)
+            expandArray();
+        array[itemsCount] = value;
+        itemsCount++;
+        counterSet.inc(OperationType.ASSIGN);
+    }
+
+    @Override
+    public String getStorageName() {
+        return "Simple Array";
+    }
+
+    @Override
+    public boolean get(int value) {
+        for (int i = 0; i < itemsCount; i++) {
+            counterSet.inc(OperationType.COMPARE);
+            if (array[i] == value)
+                return true;
         }
-        counterSet.inc(ICounterSet.OperationType.COMPARE);
+        return false;
     }
 
     @Override
-    public void set(int value) {
-        super.set(value);
-        counterSet.inc(ICounterSet.OperationType.ASSIGN);
-        array.add(value);
+    public boolean set(int value) {
+        for (int i = 0; i < itemsCount; i++) {
+            counterSet.inc(OperationType.COMPARE);
+            if (array[i] == value)
+                return false;
+        }
+        //элемент не найден, добавляем его в конец массива
+        if (itemsCount == array.length)
+            expandArray();
+        array[itemsCount] = value;
+        counterSet.inc(OperationType.ASSIGN);
+        itemsCount++;
+        return true;
     }
 
     @Override
-    public void remove(int value) {
-        super.remove(value);
-        int index;
+    public boolean remove(int value) {
+        int index = -1;
         int first = 0;
-        boolean end = false;
-        while (!end) {
-            for (index = first; index < array.size(); index++) {
-                if (array.get(index) == value) {
-                    counterSet.inc(ICounterSet.OperationType.COMPARE);
-                    counterSet.inc(ICounterSet.OperationType.ASSIGN, array.size() - index);
-                    break;
-                } else {
-                    counterSet.inc(ICounterSet.OperationType.COMPARE);
-                }
-            }
-            if (index != array.size()) {
-                first = index;
-                array.remove(index);
-            } else {
-                end = true;
+        for (int i = 0; i < itemsCount; i++) {
+            counterSet.inc(OperationType.COMPARE);
+            //элемент найден
+            if (array[i] == value) {
+                index = i;
+                break;
             }
         }
+
+        if (index == -1)
+            return false;
+
+        for (int i = index + 1; i < itemsCount; i++) {
+            counterSet.inc(OperationType.ASSIGN);
+            array[i - 1] = array[i];
+        }
+        itemsCount--;
+        return true;
     }
 
 }

@@ -1,152 +1,186 @@
 package com.vsu.amm.data.cache;
 
-import java.util.*;
+import com.vsu.amm.Utils;
+import com.vsu.amm.data.cache.CacheItem.CacheItemComparator;
+import com.vsu.amm.data.storage.IDataStorage;
+import com.vsu.amm.stat.ICounterSet;
+import com.vsu.amm.stat.ICounterSet.OperationType;
+import com.vsu.amm.stat.SimpleCounterSet;
+
+import java.util.Map;
+import java.util.Random;
 
 /**
- * Created by Nikita Skornyakov on 22.04.2015.
+ * Created by Nikita Skornyakov on 17.05.2015.
  */
-public abstract class AbstractCache {
+public abstract class AbstractCache implements ICache {
 
-    protected static final int DEFAULT_CACHE_SIZE = 5;
-    protected Integer size = DEFAULT_CACHE_SIZE;
-    protected String sizeParamName = null;
-    protected Integer insertRate = 50;
-    protected String insertRateParamName = null;
-    List<CacheStructure> cache = new ArrayList<>(DEFAULT_CACHE_SIZE);
-    private Random rnd = new Random();
+    public static final int DEFAULT_CACHE_SIZE = 10;
+    protected int cacheSize = DEFAULT_CACHE_SIZE;
+    protected IDataStorage storage;
+    protected int insertionRate = 75;
+    protected ICounterSet counterSet = new SimpleCounterSet();
+    protected int itemsCount = 0;
+    private String id;
+    private final Random rnd = new Random();
+    protected CacheItemComparator comparator = CacheItemComparator.LRU;
+    protected volatile Thread waitingThread = null;
+
+    protected void waitForThread() {
+        if (waitingThread != null)
+            if (Thread.currentThread().equals(waitingThread))
+                waitingThread.interrupt();
+            else
+                try {
+                    waitingThread.join();
+                } catch (Exception e) {
+                    System.out.println(e.getMessage());
+                }
+        waitingThread = null;
+    }
 
     public AbstractCache() {
     }
 
-    public AbstractCache(String sizeParam, String insertRateParam, Map<String, Integer> params) {
-        if (sizeParam != null) {
-            if (sizeParam.startsWith("%") && sizeParam.endsWith("%")) {
-                sizeParamName = sizeParam.substring(1, sizeParam.length() - 1);
-                if (params != null)
-                    if (params.get(sizeParamName) != null)
-                        size = params.get(sizeParamName);
-            } else
-                try {
-                    size = Integer.parseInt(sizeParam);
-                } catch (Exception ignored) {
-                }
+    public AbstractCache(String id){
+        this.id = id;
+    }
+
+    public AbstractCache(IDataStorage storage) {
+        this.storage = storage;
+    }
+
+    public AbstractCache(String id, IDataStorage storage) {
+        this.storage = storage;
+    }
+
+    public AbstractCache(IDataStorage storage, Map<String, Integer> params) {
+        this.storage = storage;
+        setStorageParams(params);
+    }
+
+    @Override
+    public ICounterSet getCounterSet() {
+        ICounterSet res = new SimpleCounterSet();
+        if (counterSet != null) {
+            res.inc(OperationType.DEFERRED_ASSIGN, counterSet.get(OperationType.DEFERRED_ASSIGN));
+            res.inc(OperationType.DEFERRED_COMPARE, counterSet.get(OperationType.DEFERRED_COMPARE));
         }
 
-        if (insertRateParam != null) {
-            if (insertRateParam.startsWith("%") && insertRateParam.endsWith("%")) {
-                insertRateParamName = insertRateParam.substring(1, insertRateParam.length() - 1);
-                if (params != null)
-                    if (params.get(insertRateParamName) != null)
-                        insertRate = params.get(insertRateParamName);
-            } else
-                try {
-                    insertRate = Integer.parseInt(insertRateParam);
-                } catch (Exception ignored) {
-                }
-        }
+        if (storage == null)
+            return res;
+
+        ICounterSet ics = storage.getCounterSet();
+        if (ics == null)
+            return res;
+
+        res.inc(OperationType.DEFERRED_ASSIGN, ics.get(OperationType.DEFERRED_ASSIGN));
+        res.inc(OperationType.DEFERRED_COMPARE, ics.get(OperationType.DEFERRED_COMPARE));
+        res.inc(OperationType.COMPARE, ics.get(OperationType.COMPARE));
+        res.inc(OperationType.ASSIGN, ics.get(OperationType.ASSIGN));
+        return res;
     }
 
-    /**
-     * get cache size
-     *
-     * @return cache size
-     */
-    public int getSize() {
-        return size;
+    @Override
+    public void setCounterSet(ICounterSet counterSet) {
+        this.counterSet = counterSet;
     }
 
-    /**
-     * устанавливает размер кэша, если значение >= 0
-     *
-     * @param newSize new cache size
-     */
-    void setSize(int newSize) {
-        if (newSize < 0)
-            return;
-
-        int oldSize = size;
-        size = newSize;
-        if (oldSize > size)
-            adjustCacheSize();
+    @Override
+    public void setInnerStorage(IDataStorage innerStorage) {
+        this.storage = innerStorage;
     }
 
-    protected abstract void adjustCacheSize();
-
-    public void clear() {
-        cache.clear();
-    }
-
-    /**
-     * check if item in cache
-     *
-     * @return true if item in cache, false otherwise
-     */
-    public boolean getItem(int item) {
-        for (CacheStructure cs : cache)
-            if (cs.value == item)
-                return true;
-        add(item);
-        return false;
-    }
-
-    /**
-     * remove item from cache
-     *
-     * @param item item to remove
-     */
-    public void remove(int item) {
-        if (cache == null)
-            return;
-        for (int i = 0; i < cache.size(); i++) {
-            CacheStructure cs = cache.get(i);
-            if (cs.value == item) {
-                cache.remove(i);
-                return;
-            }
-        }
-    }
-
-    public void setParams(Map<String, Integer> params) {
-        cache.clear();
-
+    @Override
+    public void setStorageParams(Map<String, Integer> params) {
         if (params == null)
             return;
 
-        if (sizeParamName != null) {
-            Integer sz = params.get(sizeParamName);
-            if (sz != null)
-                setSize(sz);
-        }
+        String prefix = Utils.isNullOrEmpty(id) ? "" : id + ".";
+        Integer param = params.get(prefix + "cacheSize");
+        if (param != null)
+            setSize(cacheSize);
 
-        if (insertRateParamName != null) {
-            Integer repCh = params.get(sizeParamName);
-            if (repCh != null)
-                insertRate = repCh;
-        }
+        param = params.get(prefix + "insertRate");
+        if (param != null)
+            setInsertionRate(param);
+
+        if (storage != null)
+            storage.setStorageParams(params);
     }
 
-    public void add(int value) {
-        int r = rnd.nextInt(100);
-        if (r > insertRate)
-            return;
-
-        if (cache.size() < size)
-            cache.add(new CacheStructure(value));
-        else
-            replaceItem(value);
+    @Override
+    public void clear() {
+        itemsCount = 0;
+        if (storage != null)
+            storage.clear();
     }
 
-    protected abstract void replaceItem(int value);
-
-    protected class CacheStructure {
-        public Date lastHit;
-        public int hitCount;
-        public Integer value;
-
-        public CacheStructure(Integer value) {
-            this.value = value;
-            hitCount = 1;
-            lastHit = new Date();
-        }
+    @Override
+    public IDataStorage cloneDefault() {
+        return null;
     }
+
+    @Override
+    public String getStorageName() {
+        return null;
+    }
+
+    @Override
+    public int getSize() {
+        return cacheSize;
+    }
+
+    @Override
+    public void setSize(int size) {
+        if (size < 0)
+            size = 0;
+        cacheSize = size;
+        if (size < itemsCount)
+            shrinkCache();
+    }
+
+    protected abstract void shrinkCache();
+
+    @Override
+    public int getInsertionRate() {
+        return insertionRate;
+    }
+
+    @Override
+    public void setInsertionRate(int insertionRate) {
+        this.insertionRate = insertionRate;
+    }
+
+    @Override
+    public IDataStorage getInnerStorage() {
+        return storage;
+    }
+
+    protected boolean shouldValueBeInserted() {
+        return insertionRate >= 100 || insertionRate > 0 && rnd.nextInt(100) < insertionRate;
+
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public CacheItemComparator getComparator() {
+        return comparator;
+    }
+
+    public void setComparator(CacheItemComparator comparator) {
+        this.comparator = comparator;
+    }
+
+    @Override
+    public void clearCache() {
+        itemsCount = 0;
+    }
+
 }

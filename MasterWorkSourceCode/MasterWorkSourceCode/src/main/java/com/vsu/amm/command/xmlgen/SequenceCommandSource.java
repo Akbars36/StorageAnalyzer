@@ -31,6 +31,19 @@ public class SequenceCommandSource extends StructuredCommandSource {
         commands.add(new RemoveCommandSource(removeCount, aliasSet));
     }
 
+    public SequenceCommandSource(Integer insertCount, Integer selectCount,
+                                 Integer removeCount, int  repeatCount) {
+        if (repeatCount < 0)
+            repeatCount = 1;
+        commands = new ArrayList<>(3 * repeatCount);
+        for (int i = 0; i < repeatCount; i++) {
+            AliasSet aliasSet = new AliasSet();
+            commands.add(new InsertCommandSource(insertCount, aliasSet));
+            commands.add(new SelectCommandSource(selectCount, aliasSet));
+            commands.add(new RemoveCommandSource(removeCount, aliasSet));
+        }
+    }
+
     @Override
     public ICommand next() {
         if (commands == null)

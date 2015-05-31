@@ -14,15 +14,15 @@ public class ThreadCounterResult {
 	/**
 	 * Карта из точек и их значений посчитанная текущим потоком
 	 */
-	Map<Point2D, List<Integer>> result;
+	Map<Point2D, List<Long>> result;
 	/**
 	 * Минимум найденный текущим потоком
 	 */
-	Integer curMin;
+	Long curMin;
 	/**
 	 * Максимум найденный текущим потоком
 	 */
-	Integer curMax;
+	Long curMax;
 
 	/**
 	 * Конструктор
@@ -34,35 +34,35 @@ public class ThreadCounterResult {
 	 * @param curMax
 	 *            Максимум найденный текущим потоком
 	 */
-	public ThreadCounterResult(Map<Point2D, List<Integer>> result,
-			Integer curMin, Integer curMax) {
+	public ThreadCounterResult(Map<Point2D, List<Long>> result,
+			Long curMin, Long curMax) {
 		super();
 		this.result = result;
 		this.curMin = curMin;
 		this.curMax = curMax;
 	}
 
-	public Map<Point2D, List<Integer>> getResult() {
+	public Map<Point2D, List<Long>> getResult() {
 		return result;
 	}
 
-	public void setResult(Map<Point2D, List<Integer>> result) {
+	public void setResult(Map<Point2D, List<Long>> result) {
 		this.result = result;
 	}
 
-	public Integer getCurMin() {
+	public Long getCurMin() {
 		return curMin;
 	}
 
-	public void setCurMin(Integer curMin) {
+	public void setCurMin(Long curMin) {
 		this.curMin = curMin;
 	}
 
-	public Integer getCurMax() {
+	public Long getCurMax() {
 		return curMax;
 	}
 
-	public void setCurMax(Integer curMax) {
+	public void setCurMax(Long curMax) {
 		this.curMax = curMax;
 	}
 

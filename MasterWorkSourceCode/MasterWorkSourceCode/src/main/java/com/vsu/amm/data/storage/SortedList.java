@@ -1,6 +1,7 @@
 package com.vsu.amm.data.storage;
 
 import com.vsu.amm.stat.ICounterSet;
+import com.vsu.amm.stat.ICounterSet.OperationType;
 import com.vsu.amm.stat.SimpleCounterSet;
 
 /**
@@ -16,74 +17,75 @@ public class SortedList extends AbstractStorage {
     @Override
     public void clear() {
         super.clear();
-        if (root == null)
-        	return;
-        
-        Node tmp = root.next;
-        Node next;
-        while (tmp != null) {
-            next = tmp.next;
-            tmp = next;
-        }
         root = null;
-
     }
 
     @Override
-    public void get(int value) {
-        if (getFromCache(value))
-            return;
+    public boolean get(int value) {
         Node tmp = root;
-        boolean found = false;
-        while ((tmp != null) && !found) {
-            counterSet.inc(ICounterSet.OperationType.COMPARE);
-            if (tmp.value == value) {
-                found = true;
-            }
+        while (tmp != null) {
+            counterSet.inc(OperationType.COMPARE);
+            if (tmp.value == value)
+                return true;
             tmp = tmp.next;
         }
+        return false;
     }
 
     @Override
-    public void set(int value) {
-        super.set(value);
-        if (root != null) {
-            Node curr = root;
-            Node prev = null;
-            while ((curr != null) && (curr.value < value)) {
-                counterSet.inc(ICounterSet.OperationType.COMPARE);
-                prev = curr;
-                curr = curr.next;
-            }
-            counterSet.inc(ICounterSet.OperationType.COMPARE);
-            counterSet.inc(ICounterSet.OperationType.ASSIGN);
-            Node node = new Node(value);
-            if (prev == null) {
-                node.next = root;
-                root = node;
-            } else {
-                node.next = curr;
-                prev.next = node;
-            }
-        } else {
-            counterSet.inc(ICounterSet.OperationType.ASSIGN);
+    public boolean set(int value) {
+        if (root == null) {
+            counterSet.inc(OperationType.ASSIGN);
             root = new Node(value);
+            return true;
         }
+
+        Node curr = root;
+        Node prev = null;
+        while ((curr != null) && (curr.value < value)) {
+            counterSet.inc(OperationType.COMPARE);
+            prev = curr;
+            curr = curr.next;
+        }
+
+        counterSet.inc(OperationType.ASSIGN);
+        if (curr != null && curr.value == value)
+            return false;
+
+        Node node = new Node(value);
+        if (prev == null) {
+            node.next = root;
+            root = node;
+        } else {
+            node.next = curr;
+            prev.next = node;
+        }
+        return true;
     }
 
     @Override
 	public IDataStorage cloneDefault() {
-    	SortedList s=new SortedList();
+    	SortedList s = new SortedList();
     	s.setCounterSet(new SimpleCounterSet());
 		return s;
 	}
+
     @Override
-    public void remove(int value) {
-        super.remove(value);
+    public void uncheckedInsert(int value) {
+        set(value);
+    }
+
+    @Override
+    public String getStorageName() {
+        return "Sorted List";
+    }
+
+    @Override
+    public boolean remove(int value) {
         Node curr = root;
         Node prev = null;
         while (curr != null) {
-            counterSet.inc(ICounterSet.OperationType.COMPARE);
+            counterSet.inc(OperationType.COMPARE);
             if (curr.value == value) {
                 if (curr == root) {
                     root = root.next;
@@ -93,11 +95,13 @@ public class SortedList extends AbstractStorage {
                     prev.next = curr.next;
                     curr = prev.next;
                 }
+                return true;
             } else {
                 prev = curr;
                 curr = curr.next;
             }
         }
+        return false;
     }
 
     class Node {

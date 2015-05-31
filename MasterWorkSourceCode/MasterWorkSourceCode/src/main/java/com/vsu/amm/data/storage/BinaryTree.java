@@ -1,6 +1,6 @@
 package com.vsu.amm.data.storage;
 
-import com.vsu.amm.stat.ICounterSet;
+import com.vsu.amm.stat.ICounterSet.OperationType;
 import com.vsu.amm.stat.SimpleCounterSet;
 
 import java.util.Map;
@@ -22,6 +22,17 @@ public class BinaryTree extends AbstractStorage {
 		return s;
 	}
 
+	@Override
+	public void uncheckedInsert(int value) {
+		//вставка элемента без проверки на существование не отличается от обычной вставки
+		insert(root, value);
+	}
+
+	@Override
+	public String getStorageName() {
+		return "Binary Tree";
+	}
+
 	public BinaryTree(Map<String, String> params) {
 		super();
 		this.root = null;
@@ -33,56 +44,67 @@ public class BinaryTree extends AbstractStorage {
 		root = null;
 	}
 
-	private Node find(Node node, int value) {
-		if (node == null) {
-			return null;
-		}
-		if (node.getValue() == value) {
-			counterSet.inc(ICounterSet.OperationType.COMPARE);
-			return node;
-		}
-		return find(value < node.getValue() ? node.getLeft() : node.getRight(),
+	private boolean find(Node node, int value) {
+		if (node == null)
+			return false;
+
+		counterSet.inc(OperationType.COMPARE);
+
+		if (node.value == value)
+			return true;
+
+		return find(value < node.value ? node.left : node.right,
 				value);
 	}
 
 	@Override
-	public void get(int value) {
-		if (getFromCache(value))
-			return;
-
-		find(root, value);
+	public boolean get(int value) {
+		return find(root, value);
 	}
 
-	private Node insert(Node node, int value, Node parent) {
-		if (node == null) {
-			node = new Node(value);
-			node.setParent(parent);
-			counterSet.inc(ICounterSet.OperationType.ASSIGN);
-		} else {
-			counterSet.inc(ICounterSet.OperationType.COMPARE);
-			if (value < node.getValue()) {
-				node.setLeft(insert(node.getLeft(), value, node));
-			} else {
-				node.setRight(insert(node.getRight(), value, node));
-			}
-		}
-		return node;
+	private boolean insert(Node node, int value) {
+		counterSet.inc(OperationType.COMPARE);
+		if (node.value == value)
+			return false;
+
+		if (node.value < value)
+			if (node.left == null) {
+				node.left = new Node(value);
+				node.left.parent = node;
+				counterSet.inc(OperationType.ASSIGN);
+				return true;
+			} else
+				return insert(node.left, value);
+
+		if (node.right == null) {
+			node.right = new Node(value);
+			node.right.parent = node;
+			counterSet.inc(OperationType.ASSIGN);
+			return true;
+		} else
+			return insert(node.right, value);
 	}
 
 	@Override
-	public void set(int value) {
-		super.set(value);
-		root = insert(root, value, null);
+	public boolean set(int value) {
+		if (root == null) {
+			counterSet.inc(OperationType.ASSIGN);
+			root = new Node(value);
+			return true;
+		}
+		return insert(root, value);
 	}
 
-	private Node findMin(Node node) {
-		Node min = node;
-		if (min == null)
+	Node next(Node node) {
+		if (node == null)
 			return null;
-		while (min.getLeft() != null) {
-			min = min.getLeft();
-		}
-		return min;
+
+		Node tmp = node;
+		while (tmp.left != null)
+			tmp = tmp.left;
+
+
+		return node;
 	}
 
 	/**
@@ -100,62 +122,90 @@ public class BinaryTree extends AbstractStorage {
 	 * @param value
 	 * @return
 	 */
-	private Node delete(Node node, int value) {
-		Node element;// = find(node, value);
-		while ((element = find(node, value)) != null) {
-			if (element == null)
-				return node;
+	private boolean delete(Node node, int value) {
 
-			boolean hasParent = element.getParent() != null;
-			boolean isLeft = hasParent
-					&& element.getValue() < element.getParent().getValue();
-			counterSet.inc(ICounterSet.OperationType.COMPARE);
+		Node parent = null;
+		boolean isLeft = false;
 
-			if (element.getLeft() == null && element.getRight() == null) {
-				if (hasParent) {
-					if (isLeft) {
-						element.getParent().setLeft(null);
-					} else {
-						element.getParent().setRight(null);
-					}
-					counterSet.inc(ICounterSet.OperationType.ASSIGN);
-				}
-			} else if (element.getLeft() != null && element.getRight() == null) {
-				if (hasParent) {
-					if (isLeft) {
-						element.getParent().setLeft(element.getLeft());
-					} else {
-						element.getParent().setRight(element.getLeft());
-					}
-					counterSet.inc(ICounterSet.OperationType.ASSIGN);
-				} else {
-					node = element.getLeft();
-				}
-			} else if (element.getLeft() == null && element.getRight() != null) {
-				if (hasParent) {
-					if (isLeft) {
-						element.getParent().setLeft(element.getRight());
-					} else {
-						element.getParent().setRight(element.getRight());
-					}
-				} else {
-					node = element.getRight();
-				}
-				counterSet.inc(ICounterSet.OperationType.ASSIGN);
-			} else {
-				Node rightMin = findMin(element.getRight());
-				element.setValue(rightMin.getValue());
-				counterSet.inc(ICounterSet.OperationType.ASSIGN);
-				return delete(rightMin, rightMin.getValue());
-			}
+		while (node != null && node.value != value) {
+			counterSet.inc(OperationType.COMPARE);
+			parent = node;
+			isLeft = node.value > value;
+			if (isLeft)
+				node = node.left;
+			else
+				node = node.right;
 		}
-		return node;
+
+		//узла нет – искомый элемент отсутствует в дереве
+		if (node == null)
+			return false;
+
+		//узел – лист
+		if (node.left == null && node.right == null) {
+			if (parent == null)
+				root = null;
+			else
+				if (isLeft)
+					parent.left = null;
+				else
+					parent.right = null;
+			return true;
+		}
+
+		if (node.left != null && node.right != null) {
+			//ищем элемент на замену
+			Node x = next(node.right);
+			if (x == null)
+				return false;
+			//удаляем найденный элемент из своего поддерева
+			if (x.parent.right == x)
+				x.parent.right = x.right;
+			else
+				x.parent.left = x.right;
+			x.left = node.left;
+			x.right = node.right;
+			x.parent = node.parent;
+			if (parent != null)
+				if (isLeft)
+					parent.left = x;
+				else
+					parent.right = x;
+			else
+				root = x;
+			return true;
+		}
+
+		if (node.left != null) {
+			if (parent != null)
+				if (isLeft)
+					parent.left = node.left;
+				else
+					parent.right = node.left;
+			else
+				root = node.left;
+
+			node.left.parent = parent;
+
+			return true;
+		} else {
+			if (parent != null)
+				if (isLeft)
+					parent.left = node.right;
+				else
+					parent.right = node.right;
+			else
+				root = node.right;
+
+			node.right.parent = parent;
+
+			return true;
+		}
 	}
 
 	@Override
-	public void remove(int value) {
-		super.remove(value);
-		root = delete(root, value);
+	public boolean remove(int value) {
+		return delete(root, value);
 	}
 
 	class Node {
@@ -163,53 +213,12 @@ public class BinaryTree extends AbstractStorage {
 		Node right;
 		Node left;
 		Node parent;
-		int height;
 
 		public Node(int value) {
 			this.value = value;
 			right = null;
 			left = null;
 			parent = null;
-		}
-
-		public int getValue() {
-			return value;
-		}
-
-		public void setValue(int value) {
-			this.value = value;
-		}
-
-		public Node getLeft() {
-			return left;
-		}
-
-		public void setLeft(Node left) {
-			this.left = left;
-		}
-
-		public Node getRight() {
-			return right;
-		}
-
-		public void setRight(Node right) {
-			this.right = right;
-		}
-
-		public int getHeight() {
-			return height;
-		}
-
-		public void setHeight(int height) {
-			this.height = height;
-		}
-
-		public Node getParent() {
-			return parent;
-		}
-
-		public void setParent(Node parent) {
-			this.parent = parent;
 		}
 	}
 }

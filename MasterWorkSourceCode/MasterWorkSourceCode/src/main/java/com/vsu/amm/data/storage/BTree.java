@@ -30,6 +30,16 @@ public class BTree extends AbstractStorage {
 		return s;
 	}
 
+    @Override
+    public void uncheckedInsert(int value) {
+        set(value);
+    }
+
+    @Override
+    public String getStorageName() {
+        return "BTree";
+    }
+
 
     public BTree(Map<String, Integer> params) {
         super();
@@ -74,10 +84,9 @@ public class BTree extends AbstractStorage {
         return treeHeight;
     }
 
-    public void get(int value) {
-        if (getFromCache(value))
-            return;
+    public boolean get(int value) {
         search(root, value, treeHeight);
+        return false;
     }
 
     private void search(Node x, int value, int ht) {
@@ -105,12 +114,11 @@ public class BTree extends AbstractStorage {
         }
     }
 
-    public void set(int value) {
-        super.set(value);
+    public boolean set(int value) {
         Node u = insert(root, value, treeHeight);
         elementsCount++;
         if (u == null) {
-            return;
+            return false;
         }
 
         // need to split root
@@ -119,12 +127,12 @@ public class BTree extends AbstractStorage {
         t.children[1] = new Entry(u.children[0].value, u);
         root = t;
         treeHeight++;
+
+        return true;
     }
 
     @Override
-    public void remove(int value) {
-        super.remove(value);
-    }
+    public boolean remove(int value) { return false; }
 
     private Node insert(Node h, int value, int ht) {
         int j;

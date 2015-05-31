@@ -1,17 +1,21 @@
 package com.vsu.amm.data.storage;
 
-import com.vsu.amm.data.cache.AbstractCache;
 import com.vsu.amm.stat.ICounterSet;
+import com.vsu.amm.stat.SimpleCounterSet;
 
 import java.util.Map;
+import java.util.Random;
 
 /**
  * Created by Nikita Skornyakov on 11.05.2015.
  */
 public abstract class AbstractStorage implements IDataStorage {
 
-    protected ICounterSet counterSet;
-    protected AbstractCache cache;
+    protected ICounterSet counterSet = new SimpleCounterSet();
+    protected IDataStorage innerStorage;
+    protected int insertRate = 100;
+    protected int size = -1;
+    private  static final Random rnd = new Random();
 
     @Override
     public ICounterSet getCounterSet() {
@@ -25,49 +29,29 @@ public abstract class AbstractStorage implements IDataStorage {
 
     @Override
     public void setStorageParams(Map<String, Integer> params) {
-        if (cache != null)
-            cache.setParams(params);
+        if (innerStorage != null)
+            innerStorage.setStorageParams(params);
     }
 
     @Override
     public void clear() {
-        if (cache != null)
-            cache.clear();
+        if (innerStorage != null)
+            innerStorage.clear();
         counterSet.clear();
     }
 
-    @Override
-    public void setCache(AbstractCache cache) {
-        this.cache = cache;
+    public IDataStorage cloneDefault(){
+		return null;
     }
 
     /**
-     * gets item from cache if exists
-     *
-     * @param value value to get from cache
-     * @return true if value found in cache, false otherwise
+     * проверяет нужно ли вставлять элемент в хранилище
+     * @return
      */
-    protected boolean getFromCache(int value) {
-        if (cache != null)
-            return cache.getItem(value);
-        return false;
-    }
+    protected boolean shouldInsertItem() {
+        if (insertRate == 100)
+            return true;
 
-    @Override
-    public void remove(int value) {
-        if (cache == null)
-            return;
-        cache.remove(value);
-    }
-
-    @Override
-    public void set(int value) {
-        if (cache == null)
-            return;
-        cache.add(value);
-    }
-    
-    public IDataStorage cloneDefault(){
-		return null;
+        return insertRate < rnd.nextInt(100);
     }
 }

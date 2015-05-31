@@ -39,27 +39,30 @@ public class LogFileWriter implements IDataStream {
     }
 
     @Override
-    public void get(int value) {
+    public boolean get(int value) {
         //To change body of implemented methods use File | Settings | File Templates.
         if (out != null) {
             out.println("<" + Constants.SELECT_COMMAND_NAME + "> <" + value + ">");
         }
+        return false;
     }
 
     @Override
-    public void set(int value) {
+    public boolean set(int value) {
         //To change body of implemented methods use File | Settings | File Templates.
         if (out != null) {
             out.println("<" + Constants.INSERT_COMMAND_NAME + "> <" + value + ">");
         }
+        return false;
     }
 
     @Override
-    public void remove(int value) {
+    public boolean remove(int value) {
         //To change body of implemented methods use File | Settings | File Templates.
         if (out != null) {
             out.println("<" + Constants.REMOVE_COMMAND_NAME + "> <" + value + ">");
         }
+        return false;
     }
 
     @Override

@@ -7,22 +7,23 @@ public interface IDataContainer {
 	 *
 	 * @param value
 	 *            значение, которое получают из хранилища
+	 * @return был ли найден элемент в хранилище
 	 */
-	void get(int value);
+	boolean get(int value);
 
 	/**
 	 * Устанавливает заданное значение в хранилище
 	 *
-	 * @param value
-	 *            значение, которое добавляют в хранилище
+	 * @param value значение, которое добавляют в хранилище
+	 * @return было ли добавлено новое значение в хранилище
 	 */
-	void set(int value);
+	boolean set(int value);
 
 	/**
 	 * Удаляет заданное значение из хранилища
 	 *
-	 * @param value
-	 *            значение, которое удаляют из хранилища
+	 * @param value значение, которое удаляют из хранилища
+	 * @return было ли удалено значение из хранилища
 	 */
-	void remove(int value);
+	boolean remove(int value);
 }

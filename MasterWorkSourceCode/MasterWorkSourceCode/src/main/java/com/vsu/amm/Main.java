@@ -30,7 +30,7 @@ class Main {
 
     public static void main(String[] args) {
         List<IDataStorage> storageList = new ArrayList<>();
-        SequenceCommandSource scs = new SequenceCommandSource(10000, 0, 10000, 3);
+        SequenceCommandSource scs = new SequenceCommandSource(10000, 1500, 12000, 3);
 
         IDataStorage sl = new SortedList();
         storageList.add(sl);
@@ -70,9 +70,9 @@ class Main {
         storageList.add(csrtda);
 */
         LinearAdaptiveStorage las = new LinearAdaptiveStorage();
-        las.setActiveStorage(new SortedList());
-        las.setReserveStorage(new SortedArray());
-        las.setIsrCoeffs(new double[]{10, -1014, 11, 0});
+        las.setActiveStorage(new SortedArray());
+        las.setReserveStorage(new SortedList());
+        las.setIsrCoeffs(new double[]{10, 0.75, -11, 0});
         las.setCalculationsStep(1000);
         storageList.add(las);
 /*

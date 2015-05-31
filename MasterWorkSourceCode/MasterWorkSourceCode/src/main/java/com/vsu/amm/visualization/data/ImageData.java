@@ -14,16 +14,16 @@ public class ImageData {
 	/**
 	 * Минимальное количество операций
 	 */
-	Long min;
+	Integer min;
 	/**
 	 * Максимальное количество операций
 	 */
-	Long max;
+	Integer max;
 	/**
 	 * Карта, которая содержит координаты точки для отрисовки и соответствующие
 	 * ей значения количества операций
 	 */
-	Map<Point2D, List<Long>> data;
+	Map<Point2D, List<Integer>> data;
 
 	/**
 	 * Конструктор
@@ -36,34 +36,34 @@ public class ImageData {
 	 *            Карта, которая содержит координаты точки для отрисовки и
 	 *            соответствующие ей значения количества операций
 	 */
-	public ImageData(Long min, Long max, Map<Point2D, List<Long>> data) {
+	public ImageData(Integer min, Integer max, Map<Point2D, List<Integer>> data) {
 		super();
 		this.min = min;
 		this.max = max;
 		this.data = data;
 	}
 
-	public Long getMin() {
+	public Integer getMin() {
 		return min;
 	}
 
-	public void setMin(Long min) {
+	public void setMin(Integer min) {
 		this.min = min;
 	}
 
-	public Long getMax() {
+	public Integer getMax() {
 		return max;
 	}
 
-	public void setMax(Long max) {
+	public void setMax(Integer max) {
 		this.max = max;
 	}
 
-	public Map<Point2D, List<Long>> getData() {
+	public Map<Point2D, List<Integer>> getData() {
 		return data;
 	}
 
-	public void setData(Map<Point2D, List<Long>> data) {
+	public void setData(Map<Point2D, List<Integer>> data) {
 		this.data = data;
 	}
 

@@ -62,16 +62,16 @@ public class ThreadCounter implements Callable<ThreadCounterResult> {
 	 */
 	@Override
 	public ThreadCounterResult call() throws Exception {
-		Long min = null;
-		Long max = null;
-		Map<Point2D, List<Long>> coeffs = new HashMap<>();
+		Integer min = null;
+		Integer max = null;
+		Map<Point2D, List<Integer>> coeffs = new HashMap<>();
 		// Проходим по всем точкам потока
 		for (int i = 0; i < points.size(); i++) {
 			Point2D p = points.get(i);
 			// Переводим в координаты IRS
 			Point3DInIRSCoords transfRes = transl.translate(p);
 			// Получаем значения количества операций для точки IRS
-			List<Long> result = DataGenerator.getContersForStorages(
+			List<Integer> result = DataGenerator.getContersForStorages(
 					storages, transfRes.getInsertCoord(),
 					transfRes.getSelectCoord(), transfRes.getRemoveCoord());
 			log.debug("Была обработана точка ("
@@ -90,7 +90,7 @@ public class ThreadCounter implements Callable<ThreadCounterResult> {
 			// Если одно хранилище, то ищем минимум и максимум по значениям
 			// точек
 			if (storages.size() == 1) {
-				Long cur = result.get(0);
+				Integer cur = result.get(0);
 				if (min == null || cur < min)
 					min = cur;
 				if (max == null || cur > max)

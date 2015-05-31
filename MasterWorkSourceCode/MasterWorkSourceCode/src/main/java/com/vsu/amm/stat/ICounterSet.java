@@ -11,9 +11,9 @@ public interface ICounterSet {
 
     void inc(OperationType operation);
 
-    void inc(OperationType operation, long delta);
+    void inc(OperationType operation, int delta);
 
-    long get(OperationType operation);
+    int get(OperationType operation);
 
     void clear();
 
@@ -21,7 +21,9 @@ public interface ICounterSet {
         COMPARE,
         ASSIGN,
         DEFERRED_COMPARE,
-        CALCULATION, DEFERRED_CALCULATION, DEFERRED_ASSIGN
+        CALCULATION,
+        DEFERRED_CALCULATION,
+        DEFERRED_ASSIGN
     }
 
 

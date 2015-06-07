@@ -89,8 +89,6 @@ public class Classificator {
 		w[0] /= norma;
 		w[1] /= norma;
 		w[2] /= norma;
-		System.out.println(w[0] + "         " + w[1] + "          "
-				+ (-model.rho[0]));
 		// do_cross_validation(problem,param);
 		return w;
 

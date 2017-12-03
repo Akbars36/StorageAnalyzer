@@ -12,12 +12,14 @@ namespace TestCache
         ICache<TKey, TValue> Cache { get; set; }
 
         public Dictionary<TKey, TValue> PrimaryStorage { get; set; }
-        public static int CompareCount { get; set; }
+        public static Int64 CompareCount { get; set; }
+        public static Int64 CacheCount { get; set; }
 
         public Storage(ICache<TKey, TValue> cache)
         {
             this.Cache = cache;
             CompareCount = 0;
+            CacheCount = 0;
             this.PrimaryStorage = new Dictionary<TKey, TValue>(); 
         }
 
@@ -25,6 +27,7 @@ namespace TestCache
         {
             this.Cache = cache;
             CompareCount = 0;
+            CacheCount = 0;
             this.PrimaryStorage = primaryStorage;
         }
 
@@ -44,7 +47,7 @@ namespace TestCache
             var existInCache = Cache.TryGetValue(key, out value);
             if (!existInCache)
             {
-               // CompareCount += 1;
+                //CompareCount += Program.MAIN_STORAGE_SPEED;
                 if (!PrimaryStorage.TryGetValue(key, out value))
                 {
                     return false;
@@ -53,6 +56,9 @@ namespace TestCache
                 {
                     Cache.Set(key,value);
                 }
+            }else
+            {
+                CacheCount++;
             }
             return true;
         }

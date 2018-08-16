@@ -1,0 +1,6 @@
+C:\Projects\StorageAnalyzer\TestCache\TestCache\bin\Release\TestCache.exe.config
+C:\Projects\StorageAnalyzer\TestCache\TestCache\obj\Release\TestCache.csprojResolveAssemblyReference.cache
+C:\Projects\StorageAnalyzer\TestCache\TestCache\bin\Release\TestCache.exe
+C:\Projects\StorageAnalyzer\TestCache\TestCache\bin\Release\TestCache.pdb
+C:\Projects\StorageAnalyzer\TestCache\TestCache\obj\Release\TestCache.exe
+C:\Projects\StorageAnalyzer\TestCache\TestCache\obj\Release\TestCache.pdb

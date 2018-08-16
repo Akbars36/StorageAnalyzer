@@ -42,21 +42,38 @@ namespace TestCache
             Cache.Print();
         }
 
-        public bool Get(TKey key, out TValue value)
+        public bool Get(TKey key, out TValue value, ref long cacheTime, ref long storageTime)
         {
-            var existInCache = Cache.TryGetValue(key, out value);
+            value = default(TValue);
+            bool existInCache = false;
+            if (Cache != null)
+            {
+                var watch = System.Diagnostics.Stopwatch.StartNew();
+                existInCache = Cache.TryGetValue(key, out value);
+
+                watch.Stop();
+                var elapsed = watch.ElapsedTicks;
+                cacheTime += elapsed;
+            }
+           
             if (!existInCache)
             {
-                //CompareCount += Program.MAIN_STORAGE_SPEED;
-                if (!PrimaryStorage.TryGetValue(key, out value))
+                if (Cache != null)
+                {
+                    Cache.Set(key, value);
+                }
+                CompareCount++;
+                var watchSt = System.Diagnostics.Stopwatch.StartNew();
+                var existInStorage = PrimaryStorage.TryGetValue(key, out value);
+
+                var elapsedSt = watchSt.ElapsedTicks;
+                storageTime += elapsedSt;
+                if (!existInStorage)
                 {
                     return false;
                 }
-                else
-                {
-                    Cache.Set(key,value);
-                }
-            }else
+            }
+            else
             {
                 CacheCount++;
             }
